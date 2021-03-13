@@ -1,4 +1,5 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 
 // import { getRides } from '../utils/api'
 
@@ -13,7 +14,7 @@ function RideLengthNav({selected, onUpdateRideLength}) {
             className='btn-clear nav-link'
             style={ 
               rideLength === selected
-              ? { color: 'rgb(187,46,31)'}
+              ? { color: '#5393fe'}
               : null
             }
             onClick={() => onUpdateRideLength(rideLength)}>
@@ -23,6 +24,11 @@ function RideLengthNav({selected, onUpdateRideLength}) {
       ))}
     </ul>
   )
+}
+
+RideLengthNav.propTypes = {
+  selected: PropTypes.string.isRequired,
+  onUpdateRideLength: PropTypes.func.isRequired
 }
 
 export default class Rides extends React.Component {
