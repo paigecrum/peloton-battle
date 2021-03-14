@@ -53,3 +53,34 @@ li {
 .nav li {
   margin-right: 10px;
 }
+
+.grid {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.space-around {
+  justify-content: space-around;
+}
+
+.card {
+  margin: 10px 0;
+  width: 250px;
+  padding: 20px;
+}
+
+.card a {
+  text-decoration: none;
+}
+
+.card img {
+  margin-bottom: 8px;
+}
+
+.card-test {
+  width: 150px;
+  height: 150px;
+  border-radius: 3px;
+  margin: 0 auto;
+  display: block;
+}
