@@ -2,15 +2,8 @@ import React from 'react'
 import PropTypes from 'prop-types'
 
 import { getRides } from '../utils/api'
+import { instructorMap, formatDate, rideLengthConversions } from '../utils/helpers'
 
-const rideLengthConversions = {
-  'All': null,
-  '15 min': 900,
-  '20 min': 1200,
-  '30 min': 1800,
-  '45 min': 2700,
-  '60 min': 3600
-}
 
 function RideLengthNav({selected, onUpdateRideLength}) {
   const rideLengths = ['All', '15 min', '20 min', '30 min', '45 min', '60 min'];
@@ -53,9 +46,9 @@ function RidesGrid({ rides }) {
               alt='Thumbnail from selected ride.'
             />
             <h4>{ride.title}</h4>
-            <p>{ride.instructor}</p>
+            <p>{instructorMap[ride.instructorId]}</p>
             <p>{`${ride.numFriends} friends have taken this class.`}</p>
-            <p>{`Taken on ${ride.date}`}</p>
+            <p>{`Taken on ${formatDate(ride.classStartTimestamp)}`}</p>
           </div>
         </li>
       ))}
@@ -74,35 +67,54 @@ export default class Rides extends React.Component {
 
     this.state = {
       selectedRideLength: 'All',
-      rides: {}
+      rides: {},
+      error: null
     }
 
     this.updateRideLength = this.updateRideLength.bind(this)
+    this.isLoading = this.isLoading.bind(this)
   }
 
   componentDidMount() {
     this.updateRideLength(this.state.selectedRideLength)
   }
 
+  isLoading() {
+    const { selectedRideLength, rides, error } = this.state
+    return !rides[selectedRideLength] && error === null
+  }
+
   updateRideLength(selectedRideLength) {
     this.setState({
-      selectedRideLength
+      selectedRideLength,
+      error: null
     })
 
     if (!this.state.rides[selectedRideLength]) {
-      this.setState(({ rides }) => {
-        return {
-          rides: {
-            ...rides,
-            [selectedRideLength]: getRides(rideLengthConversions[selectedRideLength])
-          }
-        }
-      })
+      getRides(rideLengthConversions[selectedRideLength])
+        .then((data) => {
+          this.setState(({ rides }) => {
+            return {
+              rides: {
+                ...rides,
+                [selectedRideLength]: data
+              }
+            }
+          })
+        })
+        .catch((error) => {
+          console.warn('Error fetching rides: ', error)
+
+          this.setState({
+            error: 'There was an error fetching your rides.'
+          })
+        })
+
     }
   }
 
   render() {
-    const { selectedRideLength, rides } = this.state;
+    const { selectedRideLength, rides, error } = this.state;
 
     return (
       <React.Fragment>
@@ -111,6 +123,8 @@ export default class Rides extends React.Component {
           onUpdateRideLength={ this.updateRideLength }
         />
         <p className='flex-center'>Select a ride you've taken to battle a friend.</p>
+        { this.isLoading() && <p className='center-text'>LOADING</p>}
+        { error && <p className='center-text error'>{error}</p>}
         { rides[selectedRideLength] && <RidesGrid rides={rides[selectedRideLength]} /> }
       </React.Fragment>
     )

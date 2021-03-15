@@ -38,6 +38,10 @@ li {
   align-items: center;
 }
 
+.center-text {
+  text-align: center;
+}
+
 .btn-clear {
   border: none;
   background: transparent;
@@ -83,4 +87,10 @@ li {
   border-radius: 3px;
   margin: 0 auto;
   display: block;
+}
+
+.error {
+  color: #ff1616;
+  font-size: 20px;
+  margin: 50px 0;
 }
