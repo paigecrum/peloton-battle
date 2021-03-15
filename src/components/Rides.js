@@ -3,6 +3,15 @@ import PropTypes from 'prop-types'
 
 import { getRides } from '../utils/api'
 
+const rideLengthConversions = {
+  'All': null,
+  '15 min': 900,
+  '20 min': 1200,
+  '30 min': 1800,
+  '45 min': 2700,
+  '60 min': 3600
+}
+
 function RideLengthNav({selected, onUpdateRideLength}) {
   const rideLengths = ['All', '15 min', '20 min', '30 min', '45 min', '60 min'];
 
@@ -85,7 +94,7 @@ export default class Rides extends React.Component {
         return {
           rides: {
             ...rides,
-            [selectedRideLength]: getRides(selectedRideLength)
+            [selectedRideLength]: getRides(rideLengthConversions[selectedRideLength])
           }
         }
       })

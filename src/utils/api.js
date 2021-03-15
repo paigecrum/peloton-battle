@@ -79,7 +79,7 @@ const data2 = {
 export function getRides(rideLength) {
   // TODO: Replace with API Gateway call
 
-  if (rideLength === '20 min') {
+  if (rideLength === 1200) {
     return data1.rides;
   } else {
     return data2.rides;
