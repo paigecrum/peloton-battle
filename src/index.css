@@ -94,3 +94,7 @@ li {
   font-size: 20px;
   margin: 50px 0;
 }
+
+.round {
+  border-radius: 50%;
+}

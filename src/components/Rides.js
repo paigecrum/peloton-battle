@@ -1,5 +1,6 @@
 import React from 'react'
 import PropTypes from 'prop-types'
+import { Link } from 'react-router-dom'
 
 import { getRides } from '../utils/api'
 import { instructorMap, formatDate, rideLengthConversions } from '../utils/helpers'
@@ -40,15 +41,19 @@ function RidesGrid({ rides }) {
       { rides.map((ride) => (
         <li key={ride.id}>
           <div className='card'>
-            <img
-              className='card-test'
-              src={`${ride.imageUrl}`}
-              alt='Thumbnail from selected ride.'
-            />
+            <Link to={`/ride/${ride.id}`}>
+              <img
+                className='card-test'
+                src={`${ride.imageUrl}`}
+                alt='Thumbnail from selected ride.'
+              />
+            </Link>
             <h4>{ride.title}</h4>
+            <h3>{ride.id}</h3>
+            <h4>{ride.imageUrl}</h4>
             <p>{instructorMap[ride.instructorId]}</p>
             <p>{`${ride.numFriends} friends have taken this class.`}</p>
-            <p>{`Taken on ${formatDate(ride.classStartTimestamp)}`}</p>
+            <p>{`Aired on ${formatDate(ride.classStartTimestamp)}`}</p>
           </div>
         </li>
       ))}
