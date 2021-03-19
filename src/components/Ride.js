@@ -8,7 +8,7 @@ export default class Ride extends React.Component {
     super(props)
 
     this.state = {
-      ride: {},
+      ride: this.props.location.state.ride,
       error: null,
       loading: true
     }
@@ -17,17 +17,30 @@ export default class Ride extends React.Component {
   componentDidMount() {
     const { rideId } = this.props.match.params;
 
-    let ride = getRide(rideId)
+    // TODO: Rename to reflect that it's just getting the opponents' info
+    getRide(rideId)
+    .then((friends) => {
+      this.setState(({ ride }) => {
+        return {
+          ride: {
+            ...ride,
+            friends
+          },
+          error: null,
+          loading: false
+        }
+      })
+    })
+    .catch((error) => {
+      console.warn('Error fetching ride info: ', error)
 
-    this.setState({
-      ride,
-      error: null,
-      loading: false
+      this.setState({
+        error: 'There was an error fetching your ride info.'
+      })
     })
   }
 
   render() {
-    const { rideId } = this.props.match.params;
     const { ride, loading } = this.state;
 
     if (loading === true){
@@ -50,16 +63,19 @@ export default class Ride extends React.Component {
         </div>
         <p className='center-text'>Pick one of your {ride.numFriends} friends who has taken this ride to battle.</p>  
         <ul className='grid space-around'>
-          { ride.friends.map((friend) => (
-            <li key={friend.id}>
-              <img
-                className='card-test round'
-                src={ride.imageUrl}
-                alt='Thumbnail from selected ride.'
-              />
-              <p>{friend.name}</p>
-            </li>
-          ))}
+          { Object.keys(ride.friends).map((friendId) => {
+            return (
+              <li key={ride.friends[friendId].id}>
+                <img
+                  className='card-test round'
+                  src={ride.friends[friendId].avatarUrl}
+                  alt='Avatar for friend'
+                />
+                <p>{ride.friends[friendId].username}</p>
+                <p>{`Taken on ${formatDate(ride.friends[friendId].startedClassAt)}`}</p>
+              </li>
+            )
+          })}
         </ul>
 
       </React.Fragment>

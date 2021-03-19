@@ -41,7 +41,12 @@ function RidesGrid({ rides }) {
       { rides.map((ride) => (
         <li key={ride.id}>
           <div className='card'>
-            <Link to={`/ride/${ride.id}`}>
+            <Link
+              to={{
+                pathname: `/ride/${ride.id}`,
+                state: { ride }
+              }}
+            >
               <img
                 className='card-test'
                 src={`${ride.imageUrl}`}
@@ -49,8 +54,6 @@ function RidesGrid({ rides }) {
               />
             </Link>
             <h4>{ride.title}</h4>
-            <h3>{ride.id}</h3>
-            <h4>{ride.imageUrl}</h4>
             <p>{instructorMap[ride.instructorId]}</p>
             <p>{`${ride.numFriends} friends have taken this class.`}</p>
             <p>{`Aired on ${formatDate(ride.classStartTimestamp)}`}</p>
