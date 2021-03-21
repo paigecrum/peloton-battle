@@ -18,6 +18,41 @@ export default class Results extends React.Component {
     }
   }
 
+  updateRide(rideId) {
+    getRideMetadata(rideId)
+      .then((ride) => {
+        this.setState({ ride, loadingRide: false })
+      })
+      .catch((error) => {
+        console.warn('Error fetching ride: ', error);
+
+        this.setState({
+          error: 'There was an error fetching ride from the ride ID param.',
+          loadingRide: false
+        })
+      })
+  }
+
+  updatePlayers(appUser, opponent) {
+    battle([appUser, opponent])
+      .then((players) => {
+        this.setState({
+          winner: players[0],
+          loser: players[1],
+          error: null,
+          loadingPlayers: false
+        })
+      })
+      .catch((error) => {
+        console.warn(error);
+
+        this.setState({
+          error: 'There was an error battling your opponent.',
+          loadingPlayers: false
+        })
+      })
+  }
+
   componentDidMount() {    
     // const { opponent } = queryString.parse(this.props.location.search);
     const { rideId } = this.props.match.params;
@@ -36,18 +71,7 @@ export default class Results extends React.Component {
 
     // Conditionally fetch ride if not navigating via ride details page
     if (!this.props.location.state) {
-      getRideMetadata(rideId)
-        .then((ride) => {
-          this.setState({ ride, loadingRide: false })
-        })
-        .catch((error) => {
-          console.warn('Error fetching ride: ', error);
-
-          this.setState({
-            error: 'There was an error fetching ride from the ride ID param.',
-            loadingRide: false
-          })
-        })
+      this.updateRide(rideId);
     } else {
       this.setState({
         ride: this.props.location.state.ride,
@@ -55,25 +79,7 @@ export default class Results extends React.Component {
       })
     }
 
-    battle([appUser, opponent])
-      .then((players) => {
-        this.setState({
-          winner: players[0],
-          loser: players[1],
-          error: null,
-          loadingPlayers: false
-        })
-      })
-      .catch((error) => {
-        console.warn(error);
-
-        this.setState({
-          error: 'There was an error battling your opponent.',
-          loadingPlayers: false
-        })
-      })
-
-    // TODO: extract getRideMetadata() and battle() calls for readability 
+    this.updatePlayers(appUser, opponent);
   }
 
   render() {
