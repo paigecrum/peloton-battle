@@ -1,6 +1,7 @@
 import React from 'react'
+import { Link } from 'react-router-dom'
 
-import { getRide } from '../utils/api'
+import { getRideOpponents } from '../utils/api'
 import { formatDate, instructorMap } from '../utils/helpers'
 
 export default class Ride extends React.Component {
@@ -17,8 +18,7 @@ export default class Ride extends React.Component {
   componentDidMount() {
     const { rideId } = this.props.match.params;
 
-    // TODO: Rename to reflect that it's just getting the opponents' info
-    getRide(rideId)
+    getRideOpponents(rideId)
     .then((friends) => {
       this.setState(({ ride }) => {
         return {
@@ -41,15 +41,21 @@ export default class Ride extends React.Component {
   }
 
   render() {
-    const { ride, loading } = this.state;
+    const { ride, loading, error } = this.state;
 
-    if (loading === true){
+    if (loading === true) {
       return <h1 className='center-text'>Loading...</h1>
+    }
+
+    if (error) {
+      return (
+        <p className='center-text error'>{error}</p>
+      )
     }
 
     return (
       <React.Fragment>
-        <div className=''>
+        <div>
           <img
             className='card-test'
             src={ride.imageUrl}
@@ -66,13 +72,23 @@ export default class Ride extends React.Component {
           { Object.keys(ride.friends).map((friendId) => {
             return (
               <li key={ride.friends[friendId].id}>
-                <img
-                  className='card-test round'
-                  src={ride.friends[friendId].avatarUrl}
-                  alt='Avatar for friend'
-                />
-                <p>{ride.friends[friendId].username}</p>
-                <p>{`Taken on ${formatDate(ride.friends[friendId].startedClassAt)}`}</p>
+                <Link
+                  className=''
+                  to={{
+                    pathname: `/battle/${ride.friends[friendId].rideId}`,
+                    search: `?opponent=${ride.friends[friendId].username}`,
+                    state: { ride }
+                  }}
+                >
+                  <img
+                    className='card-test round'
+                    src={ride.friends[friendId].avatarUrl}
+                    alt='Avatar for friend'
+                  />
+                  <p>{ride.friends[friendId].username}</p>
+                  <p>{ride.friends[friendId].location}</p>
+                  <p>{`Taken on ${formatDate(ride.friends[friendId].startedClassAt)}`}</p>
+                </Link>
               </li>
             )
           })}
