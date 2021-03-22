@@ -1,7 +1,7 @@
 import React from 'react'
-// import queryString from 'query-string'
+import queryString from 'query-string'
 
-import { getRideMetadata, battle } from '../utils/api'
+import { getRideMetadata, battle, getRideOpponents } from '../utils/api'
 import { formatDate, instructorMap } from '../utils/helpers'
 
 export default class Results extends React.Component {
@@ -53,8 +53,18 @@ export default class Results extends React.Component {
       })
   }
 
+  getOpponentInfo(opponentUsername, rideId) {
+    // Get map of opponents for rideId, then get specific opponent object from that
+    return getRideOpponents(rideId)
+      .then((opponents) => {
+        return opponents[opponentUsername]
+      })
+      .catch((error) => {
+        console.warn('Error fetching opponents: ', error)
+      })
+  }
+
   componentDidMount() {    
-    // const { opponent } = queryString.parse(this.props.location.search);
     const { rideId } = this.props.match.params;
 
     // TODO: Fetch playerOne from logged in user, hardcoding for now
@@ -63,23 +73,24 @@ export default class Results extends React.Component {
       'workoutId': 'e02ee550ec824bd28fa02fbfa1513e07'
     };
 
-    // TODO: Conditionally fetch opponent if we don't have it from Link state
-    const opponent = {
-      'userId': 'alexlonglegs',
-      'workoutId': 'ea73670d54e947f493818ae3eeb9315c'
-    };
-
-    // Conditionally fetch ride if not navigating via ride details page
+    // Conditionally fetch ride & opponent if not navigating via ride details page
     if (!this.props.location.state) {
+      const { opponent: opponentUsername } = queryString.parse(this.props.location.search);
+
       this.updateRide(rideId);
+
+      this.getOpponentInfo(opponentUsername, rideId)
+        .then((opponent) => {
+          this.updatePlayers(appUser, opponent);
+        });
     } else {
       this.setState({
         ride: this.props.location.state.ride,
         loadingRide: false
       })
-    }
 
-    this.updatePlayers(appUser, opponent);
+      this.updatePlayers(appUser, this.props.location.state.opponent);
+    }
   }
 
   render() {

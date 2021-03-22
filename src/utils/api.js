@@ -26,7 +26,7 @@ export function getRideOpponents(rideId) {
   return fetch(endpoint)
     .then((res) => res.json())
     .then((data) => {
-      return data.friends
+      return data.opponents
     })
 }
 

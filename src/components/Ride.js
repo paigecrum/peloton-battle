@@ -19,25 +19,25 @@ export default class Ride extends React.Component {
     const { rideId } = this.props.match.params;
 
     getRideOpponents(rideId)
-    .then((friends) => {
-      this.setState(({ ride }) => {
-        return {
-          ride: {
-            ...ride,
-            friends
-          },
-          error: null,
-          loading: false
-        }
+      .then((opponents) => {
+        this.setState(({ ride }) => {
+          return {
+            ride: {
+              ...ride,
+              opponents
+            },
+            error: null,
+            loading: false
+          }
+        })
       })
-    })
-    .catch((error) => {
-      console.warn('Error fetching ride info: ', error)
+      .catch((error) => {
+        console.warn('Error fetching ride info: ', error)
 
-      this.setState({
-        error: 'There was an error fetching your ride info.'
+        this.setState({
+          error: 'There was an error fetching your ride info.'
+        })
       })
-    })
   }
 
   render() {
@@ -69,25 +69,28 @@ export default class Ride extends React.Component {
         </div>
         <p className='center-text'>Pick one of your {ride.numFriends} friends who has taken this ride to battle.</p>  
         <ul className='grid space-around'>
-          { Object.keys(ride.friends).map((friendId) => {
+          { Object.keys(ride.opponents).map((opponentUsername) => {
             return (
-              <li key={ride.friends[friendId].id}>
+              <li key={ride.opponents[opponentUsername].userId}>
                 <Link
                   className=''
                   to={{
-                    pathname: `/battle/${ride.friends[friendId].rideId}`,
-                    search: `?opponent=${ride.friends[friendId].username}`,
-                    state: { ride }
+                    pathname: `/battle/${ride.opponents[opponentUsername].rideId}`,
+                    search: `?opponent=${ride.opponents[opponentUsername].username}`,
+                    state: {
+                      ride,
+                      opponent: ride.opponents[opponentUsername]
+                    }
                   }}
                 >
                   <img
                     className='card-test round'
-                    src={ride.friends[friendId].avatarUrl}
+                    src={ride.opponents[opponentUsername].avatarUrl}
                     alt='Avatar for friend'
                   />
-                  <p>{ride.friends[friendId].username}</p>
-                  <p>{ride.friends[friendId].location}</p>
-                  <p>{`Taken on ${formatDate(ride.friends[friendId].startedClassAt)}`}</p>
+                  <p>{ride.opponents[opponentUsername].username}</p>
+                  <p>{ride.opponents[opponentUsername].location}</p>
+                  <p>{`Taken on ${formatDate(ride.opponents[opponentUsername].startedClassAt)}`}</p>
                 </Link>
               </li>
             )
