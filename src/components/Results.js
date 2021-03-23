@@ -1,7 +1,7 @@
 import React from 'react'
 import queryString from 'query-string'
 
-import { getRideMetadata, battle, getRideOpponents } from '../utils/api'
+import { battle, getRideMetadata, getRideOpponents, getUserWorkout } from '../utils/api'
 import { formatDate, instructorMap } from '../utils/helpers'
 
 export default class Results extends React.Component {
@@ -53,6 +53,19 @@ export default class Results extends React.Component {
       })
   }
 
+  getUserInfo(userId, rideId) {
+    return getUserWorkout(userId, rideId)
+      .then((data) => {
+        return {
+          userId,
+          workoutId: data
+        }
+      })
+      .catch((error) => {
+        console.warn('Error fetching user: ', error)
+      })
+  }
+
   getOpponentInfo(opponentUsername, rideId) {
     // Get map of opponents for rideId, then get specific opponent object from that
     return getRideOpponents(rideId)
@@ -66,8 +79,9 @@ export default class Results extends React.Component {
 
   componentDidMount() {    
     const { rideId } = this.props.match.params;
+    // TODO: Replace hardcoded userId with logged in user ID, hardcoding for now
+    const appUserId = '7e3d7de8febc41c2b8f288e26ad8de14';
 
-    // TODO: Fetch playerOne from logged in user, hardcoding for now
     const appUser = {
       'userId': 'PaigeMicheloton',
       'workoutId': 'e02ee550ec824bd28fa02fbfa1513e07'
@@ -79,10 +93,12 @@ export default class Results extends React.Component {
 
       this.updateRide(rideId);
 
-      this.getOpponentInfo(opponentUsername, rideId)
-        .then((opponent) => {
-          this.updatePlayers(appUser, opponent);
-        });
+      Promise.all([
+        this.getUserInfo(appUserId, rideId),
+        this.getOpponentInfo(opponentUsername, rideId)
+      ]).then(([userObj, opponentObj]) => {
+        this.updatePlayers(userObj, opponentObj)
+      })
     } else {
       this.setState({
         ride: this.props.location.state.ride,
