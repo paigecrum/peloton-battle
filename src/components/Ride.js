@@ -1,7 +1,7 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 
-import { getRideOpponents } from '../utils/api'
+import { getRideMetadata, getRideOpponents } from '../utils/api'
 import { formatDate, instructorMap } from '../utils/helpers'
 
 export default class Ride extends React.Component {
@@ -9,27 +9,44 @@ export default class Ride extends React.Component {
     super(props)
 
     this.state = {
-      ride: this.props.location.state.ride,
+      ride: null,
+      opponents: [],
       error: null,
-      loading: true
+      loadingRide: true,
+      loadingOpponents: true
     }
+  }
+
+  updateRide(rideId) {
+    getRideMetadata(rideId)
+      .then((ride) => {
+        this.setState({ ride, loadingRide: false })
+      })
+      .catch((error) => {
+        console.warn('Error fetching ride: ', error);
+        this.setState({
+          error: 'There was an error fetching ride from the ride ID param.',
+          loadingRide: false
+        })
+      })
   }
 
   componentDidMount() {
     const { rideId } = this.props.match.params;
 
+   // Conditionally fetch ride if not navigating via ride details page
+    if (!this.props.location.state) {
+      this.updateRide(rideId);
+    } else {
+      this.setState({
+        ride: this.props.location.state.ride,
+        loadingRide: false
+      })
+    }
+
     getRideOpponents(rideId)
       .then((opponents) => {
-        this.setState(({ ride }) => {
-          return {
-            ride: {
-              ...ride,
-              opponents
-            },
-            error: null,
-            loading: false
-          }
-        })
+        this.setState({ opponents, loadingOpponents: false, error: null })
       })
       .catch((error) => {
         console.warn('Error fetching ride info: ', error)
@@ -41,11 +58,7 @@ export default class Ride extends React.Component {
   }
 
   render() {
-    const { ride, loading, error } = this.state;
-
-    if (loading === true) {
-      return <h1 className='center-text'>Loading...</h1>
-    }
+    const { ride, opponents, loadingRide, loadingOpponents, error } = this.state;
 
     if (error) {
       return (
@@ -55,47 +68,57 @@ export default class Ride extends React.Component {
 
     return (
       <React.Fragment>
-        <div>
-          <img
-            className='card-test'
-            src={ride.imageUrl}
-            alt='Thumbnail from selected ride.'
-          />
-          <h2 className='center-text'>{ride.title}</h2>
-          <h3 className='center-text'>{instructorMap[ride.instructorId]}</h3>
-          <p className='center-text'>
-            {`Aired on ${formatDate(ride.classStartTimestamp)}`}
-          </p>
-        </div>
-        <p className='center-text'>Pick one of your {ride.numFriends} friends who has taken this ride to battle.</p>  
-        <ul className='grid space-around'>
-          { Object.keys(ride.opponents).map((opponentUsername) => {
-            return (
-              <li key={ride.opponents[opponentUsername].userId}>
-                <Link
-                  className=''
-                  to={{
-                    pathname: `/battle/${ride.opponents[opponentUsername].rideId}`,
-                    search: `?opponent=${ride.opponents[opponentUsername].username}`,
-                    state: {
-                      ride,
-                      opponent: ride.opponents[opponentUsername]
-                    }
-                  }}
-                >
-                  <img
-                    className='card-test round'
-                    src={ride.opponents[opponentUsername].avatarUrl}
-                    alt='Avatar for friend'
-                  />
-                  <p>{ride.opponents[opponentUsername].username}</p>
-                  <p>{ride.opponents[opponentUsername].location}</p>
-                  <p>{`Taken on ${formatDate(ride.opponents[opponentUsername].startedClassAt)}`}</p>
-                </Link>
-              </li>
-            )
-          })}
-        </ul>
+        { loadingRide === true
+          ? <h1 className='center-text'>Loading Ride...</h1>
+          : <React.Fragment>
+              <div>
+                <img
+                  className='card-test'
+                  src={ride.imageUrl}
+                  alt='Thumbnail from selected ride.'
+                />
+                <h2 className='center-text'>{ride.title}</h2>
+                <h3 className='center-text'>{instructorMap[ride.instructorId]}</h3>
+                <p className='center-text'>
+                  {`Aired on ${formatDate(ride.classStartTimestamp)}`}
+                </p>
+              </div>
+            </React.Fragment>
+        }
+        { loadingOpponents === true
+          ? loadingRide === false && <h1 className='center-text'>Loading Opponents...</h1>
+          : <React.Fragment>
+              <p className='center-text'>Pick one of your {Object.keys(opponents).length} friends who has taken this ride to battle.</p>
+              <ul className='grid space-around'>
+                { Object.keys(opponents).map((opponentUsername) => {
+                  return (
+                    <li key={opponents[opponentUsername].userId}>
+                      <Link
+                        className=''
+                        to={{
+                          pathname: `/battle/${opponents[opponentUsername].rideId}`,
+                          search: `?opponent=${opponents[opponentUsername].username}`,
+                          state: {
+                            ride,
+                            opponent: opponents[opponentUsername]
+                          }
+                        }}
+                      >
+                        <img
+                          className='card-test round'
+                          src={opponents[opponentUsername].avatarUrl}
+                          alt='Avatar for friend'
+                        />
+                        <p>{opponents[opponentUsername].username}</p>
+                        <p>{opponents[opponentUsername].location}</p>
+                        <p>{`Taken on ${formatDate(opponents[opponentUsername].startedClassAt)}`}</p>
+                      </Link>
+                    </li>
+                  )
+                })}
+              </ul>
+            </React.Fragment>
+        }
 
       </React.Fragment>
     )

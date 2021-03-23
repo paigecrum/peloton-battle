@@ -82,11 +82,6 @@ export default class Results extends React.Component {
     // TODO: Replace hardcoded userId with logged in user ID, hardcoding for now
     const appUserId = '7e3d7de8febc41c2b8f288e26ad8de14';
 
-    const appUser = {
-      'userId': 'PaigeMicheloton',
-      'workoutId': 'e02ee550ec824bd28fa02fbfa1513e07'
-    };
-
     // Conditionally fetch ride & opponent if not navigating via ride details page
     if (!this.props.location.state) {
       const { opponent: opponentUsername } = queryString.parse(this.props.location.search);
@@ -105,7 +100,10 @@ export default class Results extends React.Component {
         loadingRide: false
       })
 
-      this.updatePlayers(appUser, this.props.location.state.opponent);
+      this.getUserInfo(appUserId, rideId)
+        .then((appUser) => {
+          this.updatePlayers(appUser, this.props.location.state.opponent);
+        })
     }
   }
 
