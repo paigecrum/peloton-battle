@@ -43,7 +43,7 @@ function RidesGrid({ rides }) {
           <div className='card'>
             <Link
               to={{
-                pathname: `/ride/${ride.id}`,
+                pathname: `/battle/${ride.id}`,
                 state: { ride }
               }}
             >

@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom'
 import { getRideMetadata, getRideOpponents } from '../utils/api'
 import { formatDate, instructorMap } from '../utils/helpers'
 
-export default class Ride extends React.Component {
+export default class Battle extends React.Component {
   constructor(props) {
     super(props)
 
@@ -96,7 +96,7 @@ export default class Ride extends React.Component {
                       <Link
                         className=''
                         to={{
-                          pathname: `/battle/${opponents[opponentUsername].rideId}`,
+                          pathname: `/battle/${opponents[opponentUsername].rideId}/results`,
                           search: `?opponent=${opponents[opponentUsername].username}`,
                           state: {
                             ride,
