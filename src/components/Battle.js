@@ -1,6 +1,7 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 
+import Loading from './Loading'
 import { getRideMetadata, getRideOpponents } from '../utils/api'
 import { formatDate, instructorMap } from '../utils/helpers'
 
@@ -69,7 +70,7 @@ export default class Battle extends React.Component {
     return (
       <React.Fragment>
         { loadingRide === true
-          ? <h1 className='center-text'>Loading Ride...</h1>
+          ? <Loading text='Loading Ride' />
           : <React.Fragment>
               <div>
                 <img
@@ -86,7 +87,7 @@ export default class Battle extends React.Component {
             </React.Fragment>
         }
         { loadingOpponents === true
-          ? loadingRide === false && <h1 className='center-text'>Loading Opponents...</h1>
+          ? loadingRide === false && <Loading text='Loading Opponents' />
           : <React.Fragment>
               <p className='center-text'>Pick one of your {Object.keys(opponents).length} friends who has taken this ride to battle.</p>
               <ul className='grid space-around'>

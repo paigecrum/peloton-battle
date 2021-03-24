@@ -2,6 +2,7 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import { Link } from 'react-router-dom'
 
+import Loading from './Loading'
 import { getRides } from '../utils/api'
 import { instructorMap, formatDate, rideLengthConversions } from '../utils/helpers'
 
@@ -131,7 +132,7 @@ export default class Rides extends React.Component {
           onUpdateRideLength={ this.updateRideLength }
         />
         <p className='flex-center'>Select a ride you've taken to battle a friend.</p>
-        { this.isLoading() && <p className='center-text'>LOADING</p>}
+        { this.isLoading() && <Loading text={`Loading ${selectedRideLength} Rides`} />}
         { error && <p className='center-text error'>{error}</p>}
         { rides[selectedRideLength] && <RidesGrid rides={rides[selectedRideLength]} /> }
       </React.Fragment>

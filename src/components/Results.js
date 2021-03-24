@@ -1,6 +1,7 @@
 import React from 'react'
 import queryString from 'query-string'
 
+import Loading from './Loading'
 import { battle, getRideMetadata, getRideOpponents, getUserWorkout } from '../utils/api'
 import { formatDate, instructorMap } from '../utils/helpers'
 
@@ -121,7 +122,7 @@ export default class Results extends React.Component {
         <h1 className='center-text'>Battle Results!</h1>
 
         { loadingRide === true
-          ? <h1 className='center-text'>Loading Ride...</h1>
+          ? <Loading text='Loading Ride' />
           : <React.Fragment>
               <div>
                 <img
@@ -139,7 +140,7 @@ export default class Results extends React.Component {
         }
 
         { loadingPlayers === true
-          ? loadingRide === false && <h1 className='center-text'>Battling...</h1>
+          ? loadingRide === false && <Loading text='Battling' />
           : <React.Fragment>
               <div className='grid space-around container-sm'>
                 <div>
