@@ -71,29 +71,22 @@ RidesGrid.propTypes = {
 }
 
 export default class Rides extends React.Component {
-  constructor(props) {
-    super(props)
-
-    this.state = {
-      selectedRideLength: 'All',
-      rides: {},
-      error: null
-    }
-
-    this.updateRideLength = this.updateRideLength.bind(this)
-    this.isLoading = this.isLoading.bind(this)
+  state = {
+    selectedRideLength: 'All',
+    rides: {},
+    error: null
   }
 
   componentDidMount() {
     this.updateRideLength(this.state.selectedRideLength)
   }
 
-  isLoading() {
+  isLoading = () => {
     const { selectedRideLength, rides, error } = this.state
     return !rides[selectedRideLength] && error === null
   }
 
-  updateRideLength(selectedRideLength) {
+  updateRideLength = (selectedRideLength) => {
     this.setState({
       selectedRideLength,
       error: null

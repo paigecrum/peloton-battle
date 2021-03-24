@@ -6,17 +6,13 @@ import { battle, getRideMetadata, getRideOpponents, getUserWorkout } from '../ut
 import { formatDate, instructorMap } from '../utils/helpers'
 
 export default class Results extends React.Component {
-  constructor(props) {
-    super(props)
-
-    this.state = {
-      ride: null,
-      winner: null,
-      loser: null,
-      loadingRide: true,
-      loadingPlayers: true,
-      error: null
-    }
+  state = {
+    ride: null,
+    winner: null,
+    loser: null,
+    loadingRide: true,
+    loadingPlayers: true,
+    error: null
   }
 
   updateRide(rideId) {
