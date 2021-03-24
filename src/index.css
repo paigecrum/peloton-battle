@@ -63,8 +63,17 @@ li {
   flex-wrap: wrap;
 }
 
+.row {
+  display: flex;
+  flex-direction: row;
+}
+
 .space-around {
   justify-content: space-around;
+}
+
+.space-between {
+  justify-content: space-between;
 }
 
 .card {

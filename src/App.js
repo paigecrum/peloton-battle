@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom'
 
+import Nav from './components/Nav'
 import Rides from './components/Rides'
 import Battle from './components/Battle'
 import Results from './components/Results'
@@ -8,6 +9,7 @@ function App() {
   return (
     <Router>
       <div className="container">
+        <Nav />
         <Switch>
           <Route exact path='/' component={Rides} />
           <Route exact path='/battle/:rideId' component={Battle} />
