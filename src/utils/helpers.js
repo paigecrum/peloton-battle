@@ -8,12 +8,12 @@ export const rideLengthConversions = {
   '60 min': 3600
 }
 
-export function formatDate(unixTimestamp) {
-  return new Date(unixTimestamp * 1000)
-    .toLocaleDateString('en-US', {
-      hour: 'numeric',
-      minute: 'numeric'
-    });
+export function formatDate(unixTime) {
+  const d = new Date(unixTime * 1000);
+  const dateString = d.toLocaleDateString([], { day: 'numeric', month: 'numeric', year: '2-digit' });
+  const timeString = d.toLocaleTimeString([], { hour: 'numeric', minute:'2-digit' });
+  
+  return dateString + ' @ ' + timeString;
 }
 
 export const instructorMap = {
@@ -25,6 +25,7 @@ export const instructorMap = {
   "c9fa21c2004c4544a7c35c28a6196c77": "Andy Speer",
   "286fc17080d34406a54b80ad8ff83e12": "Becs Gentry",
   "7f3de5e78bb44d8591a0f77f760478c3": "Ben Alldis",
+  "01f636dc54a145239c4348e1736684ee": "Bradley Rose",
   "1423df9e4ad64a84a3044d20a5c36563": "Chase Tucker",
   "e2e6586d898d4422b3f6e3a259ff3f90": "Cliff Dwenger",
   "0021e2220a7940cf94a7647b1e4bae6c": "Chelsea Jackson Roberts",

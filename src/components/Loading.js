@@ -1,17 +1,8 @@
 import React from 'react'
 import PropTypes from 'prop-types'
+import { Box, Spinner, Text } from 'grommet'
+import { Bike } from 'grommet-icons'
 
-const styles = {
-  content: {
-    fontSize: '35px',
-    position: 'absolute',
-    left: '0',
-    right: '0',
-    marginTop: '20px',
-    textAlign: 'center',
-    textTransform: 'capitalize'
-  }
-}
 
 export default class Loading extends React.Component {
   state = { text: this.props.text }
@@ -40,9 +31,13 @@ export default class Loading extends React.Component {
   }
   render() {
     return (
-      <p style={styles.content}>
-        { this.state.text }
-      </p>
+      <Box align='center' direction='row' gap='medium' margin={{ vertical: 'medium' }}>
+        <Spinner />
+        <Text alignSelf='center' size='large'>
+          { this.state.text }
+        </Text>
+        <Bike />
+      </Box>
     )
   }
 }

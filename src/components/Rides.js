@@ -1,32 +1,29 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import { Link } from 'react-router-dom'
+import { Box, Button, Grid, Nav, Heading } from 'grommet'
+import styled from 'styled-components'
 
 import Loading from './Loading'
+import RideCard from './RideCard'
 import { getRides } from '../utils/api'
-import { instructorMap, formatDate, rideLengthConversions } from '../utils/helpers'
+import { rideLengthConversions } from '../utils/helpers'
 
 
 function RideLengthNav({selected, onUpdateRideLength}) {
   const rideLengths = ['All', '15 min', '20 min', '30 min', '45 min', '60 min'];
 
   return (
-    <ul className='flex-center'>
-      { rideLengths.map((rideLength) => (
-        <li key={rideLength}>
-          <button 
-            className='btn-clear nav-link'
-            style={ 
-              rideLength === selected
-              ? { color: 'hsl(218,99%,66%)'}
-              : null
-            }
-            onClick={() => onUpdateRideLength(rideLength)}>
-              {rideLength}
-          </button>
-        </li>
-      ))}
-    </ul>
+    <Box align='center' pad='medium'>
+      <Nav direction='row' align='center' pad='medium'>
+        { rideLengths.map((rideLength) => (
+          <Button
+            key={rideLength}
+            label={rideLength}
+            onClick={() => onUpdateRideLength(rideLength)}
+          />
+        ))}
+      </Nav>
+    </Box>
   )
 }
 
@@ -37,32 +34,13 @@ RideLengthNav.propTypes = {
 
 function RidesGrid({ rides }) {
   return (
-    <div>
-      <ul className='grid space-around'>
-      { rides.map((ride) => (
-        <li key={ride.id}>
-          <div className='card'>
-            <Link
-              to={{
-                pathname: `/battle/${ride.id}`,
-                state: { ride }
-              }}
-            >
-              <img
-                className='card-test'
-                src={`${ride.imageUrl}`}
-                alt='Thumbnail from selected ride.'
-              />
-            </Link>
-            <h4>{ride.title}</h4>
-            <p>{instructorMap[ride.instructorId]}</p>
-            <p>{`${ride.numFriends} friends have taken this class.`}</p>
-            <p>{`Aired on ${formatDate(ride.classStartTimestamp)}`}</p>
-          </div>
-        </li>
-      ))}
-      </ul>
-    </div>
+    <Box pad='medium'>
+      <Grid gap='medium' rows='medium' justify='center' columns={{ count: 'fit', size: 'medium' }}>
+        { rides.map((ride) => (
+          <RideCard key={ride.id} ride={ride} />
+        ))}
+      </Grid>
+    </Box>
   )
 }
 
@@ -124,11 +102,20 @@ export default class Rides extends React.Component {
           selected={ selectedRideLength }
           onUpdateRideLength={ this.updateRideLength }
         />
-        <p className='flex-center'>Select a ride you've taken to battle a friend.</p>
-        { this.isLoading() && <Loading text={`Loading ${selectedRideLength} Rides`} />}
-        { error && <p className='center-text error'>{error}</p>}
+        <Box align='center'>
+          <Heading margin={{ bottom: 'medium' }} level='3' size='small' color='dark-2'>
+            Select a ride you've taken to battle a friend.
+          </Heading>
+          { this.isLoading() && <Loading text={`Loading ${selectedRideLength} Rides`} />}
+          { error && <ErrorMessage>{ error }</ErrorMessage>}
+        </Box>
         { rides[selectedRideLength] && <RidesGrid rides={rides[selectedRideLength]} /> }
       </React.Fragment>
     )
   }
 }
+
+const ErrorMessage = styled(Text)`
+  color: #ff1616;
+  margin: 30px 0;
+`;
