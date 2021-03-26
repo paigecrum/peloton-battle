@@ -67,7 +67,9 @@ export default class Battle extends React.Component {
     return (
       <Box margin='large'>
         { loadingRide === true
-          ? <Loading text='Loading Ride' />
+          ? <Box align='center'>
+              <Loading text='Loading Ride' />
+            </Box>
           : <Box align='center'>
               <RideCard ride={ride} />
             </Box>

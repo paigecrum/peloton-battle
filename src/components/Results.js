@@ -1,9 +1,11 @@
 import React from 'react'
+import { Box, Grid, Heading } from 'grommet'
 import queryString from 'query-string'
 
 import Loading from './Loading'
+import RideCard from './RideCard'
+import ResultCard from './ResultCard'
 import { battle, getRideMetadata, getRideOpponents, getUserWorkout } from '../utils/api'
-import { formatDate, instructorMap } from '../utils/helpers'
 
 export default class Results extends React.Component {
   state = {
@@ -114,60 +116,40 @@ export default class Results extends React.Component {
     }
 
     return (
-      <React.Fragment>
-        <h1 className='center-text'>Battle Results!</h1>
-
+      <Box margin={{ bottom: 'large' }}>
+        <Box align='center'>
+          <Heading textAlign='center' level='1' size='small' margin={{ bottom: 'medium' }} color='dark-2'>
+            Battle Results
+          </Heading>
+        </Box>
         { loadingRide === true
-          ? <Loading text='Loading Ride' />
-          : <React.Fragment>
-              <div>
-                <img
-                  className='card-test'
-                  src={ride.imageUrl}
-                  alt='Thumbnail from selected ride.'
-                />
-                <h2 className='center-text'>{ride.title}</h2>
-                <h3 className='center-text'>{instructorMap[ride.instructorId]}</h3>
-                <p className='center-text'>
-                  {`Aired on ${formatDate(ride.classStartTimestamp)}`}
-                </p>
-              </div>
-            </React.Fragment>
+          ? <Box align='center'>
+              <Loading text='Loading Ride' />
+            </Box>
+          : <Box align='center'>
+              <RideCard ride={ride} />
+            </Box>
         }
-
         { loadingPlayers === true
-          ? loadingRide === false && <Loading text='Battling' />
-          : <React.Fragment>
-              <div className='grid space-around container-sm'>
-                <div>
-                  <h3>Winner: {winner.username}</h3>
-                  <img
-                    className='card-test round'
-                    src={winner.avatarUrl}
-                    alt='Avatar for battle winner'
-                  />
-                  <p>Date Taken: {formatDate(winner.startedClassAt)}</p>
-                  { winner.stats.summaries.map((stat) => (
-                    <p key={stat.slug}>{stat.display_name}: {stat.value} {stat.display_unit}</p>
-                  ))}
-                </div>
-                <div>
-                  <h3>Loser: {loser.username}</h3>
-                  <img
-                    className='card-test round'
-                    src={loser.avatarUrl}
-                    alt='Avatar for battle loser'
-                  />
-                  <p>Date Taken: {formatDate(loser.startedClassAt)}</p>
-                  { loser.stats.summaries.map((stat) => (
-                    <p key={stat.slug}>{stat.display_name}: {stat.value} {stat.display_unit}</p>
-                  ))}
-                </div>
-              </div>
-            </React.Fragment>
+          ? loadingRide === false &&
+            <Box align='center'>
+              <Loading text='Battling' />
+            </Box>
+          : <Box pad={{ top: 'large'}}>
+              <Grid
+                gap='medium'
+                rows='medium'
+                justify='center'
+                columns={{ count: 'fit', size: 'medium' }}
+                margin={{ left: 'xlarge', right: 'xlarge' }}
+              >
+                <ResultCard player={winner} outcome='Winner' />
+                <ResultCard player={loser} outcome='Loser' />
+              </Grid>
+            </Box>
         }
 
-      </React.Fragment>
+      </Box>
     )
   }
 }

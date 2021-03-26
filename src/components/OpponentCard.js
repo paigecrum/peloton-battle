@@ -1,6 +1,6 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import { Avatar, Card, CardHeader, CardBody, CardFooter, Heading, Image, Text } from 'grommet'
+import { Avatar, Card, CardHeader, CardBody, CardFooter, Heading, Text } from 'grommet'
 import styled from 'styled-components'
 
 import { formatDate } from '../utils/helpers'
@@ -18,21 +18,14 @@ export default function OpponentCard({ opponent, ride }) {
         state: { opponent, ride }
       }}
     >    
-      <Card height='small' width='small' background='light-1'
-        hoverIndicator={{
-          background: {
-            color: 'background-contrast',
-          },
-          elevation: 'medium',
-        }}
-      >
+      <Card height='small' width='small' background='light-1'>
         <CardHeader justify='center' pad='small' background='light-2'>
           <Heading margin='none' level='4' size='medium'>
             {opponent.username}
           </Heading>
         </CardHeader>
         <CardBody align='center' pad='xsmall'>
-          <Avatar src={opponent.avatarUrl} size='xlarge' />      
+          <Avatar src={opponent.avatarUrl} size='xlarge' />
         </CardBody>
         <CardFooter pad='xsmall' background='light-2'>
           <Text size='small' textAlign='center'>
