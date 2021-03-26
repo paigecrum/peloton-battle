@@ -85,7 +85,7 @@ export default class Battle extends React.Component {
                   Pick one of your {Object.keys(opponents).length} friends who has taken this ride to battle.
                 </Heading>
               </Box>
-              <Grid gap='medium' rows='small' justify='center' columns={{ count: 'fit', size: 'medium' }}>
+              <Grid gap='medium' rows='small' justify='center' columns={{ count: 'fit', size: 'small' }}>
                 { Object.keys(opponents).map((opponentUsername) => {
                   return (
                     <OpponentCard key={opponents[opponentUsername].userId} opponent={opponents[opponentUsername]} ride={ride} />
