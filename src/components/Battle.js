@@ -1,9 +1,10 @@
 import React from 'react'
-import { Link } from 'react-router-dom'
+import { Box, Grid, Heading } from 'grommet'
 
 import Loading from './Loading'
+import RideCard from './RideCard'
+import OpponentCard from './OpponentCard'
 import { getRideMetadata, getRideOpponents } from '../utils/api'
-import { formatDate, instructorMap } from '../utils/helpers'
 
 export default class Battle extends React.Component {
   state = {
@@ -64,60 +65,34 @@ export default class Battle extends React.Component {
     }
 
     return (
-      <React.Fragment>
+      <Box margin='large'>
         { loadingRide === true
           ? <Loading text='Loading Ride' />
-          : <React.Fragment>
-              <div>
-                <img
-                  className='card-test'
-                  src={ride.imageUrl}
-                  alt='Thumbnail from selected ride.'
-                />
-                <h2 className='center-text'>{ride.title}</h2>
-                <h3 className='center-text'>{instructorMap[ride.instructorId]}</h3>
-                <p className='center-text'>
-                  {`Aired on ${formatDate(ride.classStartTimestamp)}`}
-                </p>
-              </div>
-            </React.Fragment>
+          : <Box align='center'>
+              <RideCard ride={ride} />
+            </Box>
         }
         { loadingOpponents === true
-          ? loadingRide === false && <Loading text='Loading Opponents' />
+          ? loadingRide === false &&
+            <Box align='center'>
+              <Loading text='Loading Opponents' />
+            </Box>
           : <React.Fragment>
-              <p className='center-text'>Pick one of your {Object.keys(opponents).length} friends who has taken this ride to battle.</p>
-              <ul className='grid space-around'>
+              <Box align='center'>
+                <Heading textAlign='center' margin={{ bottom: 'medium' }} level='3' size='small' color='dark-2'>
+                  Pick one of your {Object.keys(opponents).length} friends who has taken this ride to battle.
+                </Heading>
+              </Box>
+              <Grid gap='medium' rows='small' justify='center' columns={{ count: 'fit', size: 'medium' }}>
                 { Object.keys(opponents).map((opponentUsername) => {
                   return (
-                    <li key={opponents[opponentUsername].userId}>
-                      <Link
-                        className=''
-                        to={{
-                          pathname: `/battle/${opponents[opponentUsername].rideId}/results`,
-                          search: `?opponent=${opponents[opponentUsername].username}`,
-                          state: {
-                            ride,
-                            opponent: opponents[opponentUsername]
-                          }
-                        }}
-                      >
-                        <img
-                          className='card-test round'
-                          src={opponents[opponentUsername].avatarUrl}
-                          alt='Avatar for friend'
-                        />
-                        <p>{opponents[opponentUsername].username}</p>
-                        <p>{opponents[opponentUsername].location}</p>
-                        <p>{`Taken on ${formatDate(opponents[opponentUsername].startedClassAt)}`}</p>
-                      </Link>
-                    </li>
+                    <OpponentCard key={opponents[opponentUsername].userId} opponent={opponents[opponentUsername]} ride={ride} />
                   )
                 })}
-              </ul>
+              </Grid>
             </React.Fragment>
         }
-
-      </React.Fragment>
+      </Box>
     )
   }
 }
