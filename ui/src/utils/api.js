@@ -1,9 +1,9 @@
 
 export function getRides(rideLength) {
   const durationParam = rideLength ? `?duration=${rideLength}` : '';
-  const endpoint = `${process.env.REACT_APP_API_ENDPOINT}/rides${durationParam}`;
+  const endpoint = `${process.env.REACT_APP_API_ENDPOINT2}/rides${durationParam}`;
 
-  return fetch(endpoint)
+  return fetch(endpoint, { 'credentials': 'include' })
     .then((res) => res.json())
     .then((data) => {
       return data.rides
