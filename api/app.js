@@ -24,10 +24,7 @@ app.use(session({
   saveUninitialized: true
 }));
 
-app.use(cors({
-  origin: 'http://localhost:3000', // TODO: environment variable to control UI URL
-  credentials: true
-}));
+app.use(cors());
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));

@@ -38,7 +38,6 @@ router.get('/authorize', async(req, res, next) => {
   } catch (error) {
     console.log('In auth, error is: ', error);
   }
-
 });
 
 router.get('/rides', async(req, res, next) => {
@@ -60,7 +59,6 @@ router.get('/rides', async(req, res, next) => {
         `&has_workout=true` +
         `&is_following_user_ride=true${duration}`;
 
-      // Fetch Rides
       const ridesResponse = await fetch(ridesEndpoint, {
         headers: headersWithCookies
       });
@@ -87,10 +85,90 @@ router.get('/rides', async(req, res, next) => {
 
     } catch (error) {
       console.log('In /rides, error is: ', error);
-    }   
+    }
   }
-
 });
 
+router.get('/ride/:rideId', async(req, res, next) => {
+  // Require authorization to proceed
+  if (!req.session.pelotonSessionId) {
+      res.sendStatus(401);
+    } else {
+      try {
+        const rideId = req.params.rideId;
+        const headersWithCookies = Object.assign({}, BASE_HEADERS, { 'cookie' : req.session.pelotonSessionCookie });
+        const rideEndpoint = BASE_URL + `/api/ride/${rideId}`;
+
+        const rideResponse = await fetch(rideEndpoint, {
+          headers: headersWithCookies
+        });
+        const rideResponseJSON = await rideResponse.json();
+
+        res.json({
+          'id': rideResponseJSON.id,
+          'instructorId': rideResponseJSON.instructor_id,
+          'title': rideResponseJSON.title,
+          'imageUrl': rideResponseJSON.image_url,
+          'numFriends': rideResponseJSON.total_following_workouts,
+          'duration': rideResponseJSON.duration,
+          'classStartTimestamp': rideResponseJSON.scheduled_start_time
+        });
+    } catch (error) {
+      console.log('In /ride, error is: ', error);
+    }
+  }
+});
+
+router.get('/ride/:rideId/opponents', async(req, res, next) => {
+  // Require authorization to proceed
+  if (!req.session.pelotonSessionId) {
+      res.sendStatus(401);
+    } else {
+      try {
+        const rideId = req.params.rideId;
+        const headersWithCookies = Object.assign({}, BASE_HEADERS, { 'cookie' : req.session.pelotonSessionCookie });
+        const otherRidersEndpoint = BASE_URL + `/api/ride/${rideId}/recent_following_workouts?limit=100`;
+
+        // Get list of friends who have taken this ride
+        const otherRidersResponse = await fetch(otherRidersEndpoint, {
+          headers: headersWithCookies
+        });
+        const otherRidersResponseJSON = await otherRidersResponse.json();
+
+        let opponents = {};
+
+        for (let rider of otherRidersResponseJSON.data) {
+          const userId = rider.user_id;
+
+          // Get user details for name, username, avatar
+          const userResponse = await fetch(BASE_URL + `/api/user/${userId}`, {
+            headers: headersWithCookies
+          });
+          const userResponseJSON = await userResponse.json();
+
+          let username = userResponseJSON.username;
+          let opponent = {
+            'userId': userId,
+            'rideId': rideId,
+            'username': username,
+            'deviceType': rider.device_type,
+            'location': userResponseJSON.location,
+            'avatarUrl': userResponseJSON.image_url,
+            'totalWork': rider.total_work,
+            'startedClassAt': rider.start_time,
+            'workoutId': rider.id
+          };
+
+          opponents[username] = opponent;
+        }
+
+        res.json({
+          'opponents': opponents
+        });
+    } catch (error) {
+      console.log('In /ride, error is: ', error);
+    }
+  }
+});
 
 module.exports = router;

@@ -1,9 +1,9 @@
 
 export function getRides(rideLength) {
   const durationParam = rideLength ? `?duration=${rideLength}` : '';
-  const endpoint = `${process.env.REACT_APP_API_ENDPOINT2}/rides${durationParam}`;
+  const endpoint = `/pelotonBattle/rides${durationParam}`;
 
-  return fetch(endpoint, { 'credentials': 'include' })
+  return fetch(endpoint)
     .then((res) => res.json())
     .then((data) => {
       return data.rides
@@ -11,7 +11,7 @@ export function getRides(rideLength) {
 }
 
 export function getRideMetadata(rideId) {
-  const endpoint = `${process.env.REACT_APP_API_ENDPOINT}/ride/${rideId}`;
+  const endpoint = `/pelotonBattle/ride/${rideId}`;
 
   return fetch(endpoint)
     .then((res) => res.json())
@@ -21,7 +21,7 @@ export function getRideMetadata(rideId) {
 }
 
 export function getRideOpponents(rideId) {
-  const endpoint = `${process.env.REACT_APP_API_ENDPOINT}/ride/${rideId}/opponents`;
+  const endpoint = `/pelotonBattle/ride/${rideId}/opponents`;
 
   return fetch(endpoint)
     .then((res) => res.json())
