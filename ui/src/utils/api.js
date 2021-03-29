@@ -31,7 +31,7 @@ export function getRideOpponents(rideId) {
 }
 
 function getPlayerRideStats(workoutId) {
-  const endpoint = `${process.env.REACT_APP_API_ENDPOINT}/workout/${workoutId}`;
+  const endpoint = `/pelotonBattle/workout/${workoutId}`;
 
   return fetch(endpoint)
     .then((res) => res.json())

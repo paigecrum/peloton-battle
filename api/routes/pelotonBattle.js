@@ -166,7 +166,55 @@ router.get('/ride/:rideId/opponents', async(req, res, next) => {
           'opponents': opponents
         });
     } catch (error) {
-      console.log('In /ride, error is: ', error);
+      console.log('In /ride/:rideId/opponents, error is: ', error);
+    }
+  }
+});
+
+router.get('/workout/:workoutId', async(req, res, next) => {
+  // Require authorization to proceed
+  if (!req.session.pelotonSessionId) {
+      res.sendStatus(401);
+    } else {
+      try {
+        const workoutId = req.params.workoutId;
+        const headersWithCookies = Object.assign({}, BASE_HEADERS, { 'cookie' : req.session.pelotonSessionCookie });
+        const workoutEndpoint = BASE_URL + `/api/workout/${workoutId}`;
+
+        // Get workout metadata
+        const workoutDetailsResponse = await fetch(workoutEndpoint, {
+          headers: headersWithCookies
+        });
+        const workoutDetailsJSON = await workoutDetailsResponse.json();
+
+
+        // Get workout performance metrics
+        const performanceMetricsResponse = await fetch(workoutEndpoint + `/performance_graph`, {
+          headers: headersWithCookies
+        });
+        const performanceMetricsJSON = await performanceMetricsResponse.json();
+
+        // Pull total output out of metrics summaries for ease of use
+        let totalOutput = null;
+        for (let metric of performanceMetricsJSON.summaries) {
+          if (metric.slug === 'total_output') {
+            totalOutput = metric.value;
+          }
+        }
+
+        res.json({
+          'userId': workoutDetailsJSON.user_id,
+          'startedClassAt': workoutDetailsJSON.start_time,
+          'workoutId': workoutId,
+          'deviceType': workoutDetailsJSON.device_type,
+          'stats': {
+            'averageSummaries': performanceMetricsJSON.average_summaries,
+            'summaries': performanceMetricsJSON.summaries
+          },
+          'totalOutput': totalOutput
+        });
+    } catch (error) {
+      console.log('In /workout, error is: ', error);
     }
   }
 });
