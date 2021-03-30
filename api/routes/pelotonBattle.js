@@ -9,9 +9,9 @@ const BASE_HEADERS = {
   'peloton-platform': 'web' // Required Peloton-Platform header for select endpoints
 }
 
-router.get('/authorize', async(req, res, next) => {  
+router.get('/authorize', async(req, res, next) => {
   try {
-    // TODO: Get user & pw off request 
+    // TODO: Get user & pw off request
     const payload = {
       'username_or_email': process.env.PELOTON_AUTH_USER,
       'password': process.env.PELOTON_AUTH_PW
@@ -33,7 +33,7 @@ router.get('/authorize', async(req, res, next) => {
     // Set cookie to send in subsequent requests
     const pelotonHeaders = resp.headers.raw()['set-cookie'];
     req.session.pelotonSessionCookie = pelotonHeaders.join(';');
-    
+
     res.json({ success: true });
   } catch (error) {
     console.log('In auth, error is: ', error);
@@ -63,7 +63,7 @@ router.get('/rides', async(req, res, next) => {
         headers: headersWithCookies
       });
       const ridesResponseJSON = await ridesResponse.json();
-      
+
       let responseData = {
         'rides': []
       };
@@ -218,5 +218,101 @@ router.get('/workout/:workoutId', async(req, res, next) => {
     }
   }
 });
+
+router.get('/user/:userId', async(req, res, next) => {
+  // Require authorization to proceed
+  if (!req.session.pelotonSessionId) {
+      res.sendStatus(401);
+    } else {
+      try {
+        const userId = req.params.userId;
+        const headersWithCookies = Object.assign({}, BASE_HEADERS, { 'cookie' : req.session.pelotonSessionCookie });
+        const userEndpoint = BASE_URL + `/api/user/${userId}`;
+
+        const userResponse = await fetch(userEndpoint, {
+          headers: headersWithCookies
+        });
+        const userResponseJSON = await userResponse.json();
+
+        let responseData = {
+          'userId': userResponseJSON.id,
+          'username': userResponseJSON.username,
+          'name': userResponseJSON.name,
+          'avatarUrl': userResponseJSON.image_url,
+          'location': userResponseJSON.location,
+          'totalFollowers': userResponseJSON.total_followers,
+          'totalFollowing': userResponseJSON.total_following,
+          'totalWorkouts': userResponseJSON.total_workouts
+        };
+
+        // Get PRs from '/overview' endpoint
+        const userOverviewResponse = await fetch(userEndpoint + `/overview`, {
+          headers: headersWithCookies
+        });
+        const userOverviewJSON = await userOverviewResponse.json();
+
+        responseData.personalRecords = userOverviewJSON.personal_records;
+
+        res.json(responseData);
+    } catch (error) {
+      console.log('In /user, error is: ', error);
+    }
+  }
+});
+
+router.get('/user/:userId/workouts', async(req, res, next) => {
+  // Require authorization to proceed
+  if (!req.session.pelotonSessionId) {
+      res.sendStatus(401);
+    } else {
+      try {
+        const userId = req.params.userId;
+        const limit = req.query.limit;
+        const headersWithCookies = Object.assign({}, BASE_HEADERS, { 'cookie' : req.session.pelotonSessionCookie });
+        const userWorkoutsEndpoint = BASE_URL + `/api/user/${userId}/workouts`;
+        // Generate optional query params to filter workouts
+        const page = req.query.page ? `&page=${req.query.page}` : '';
+        const joins = req.query.joins ? `&joins=${req.query.joins}` : '';
+
+        // Get workouts
+        const userWorkoutsResponse = await fetch(userWorkoutsEndpoint + `?limit=${limit}${page}${joins}`, {
+          headers: headersWithCookies
+        });
+        const userWorkoutsJSON = await userWorkoutsResponse.json();
+
+        let workouts = [];
+        for (workout of userWorkoutsJSON.data) {
+          let data = {
+            'userId': workout.user_id,
+            'workoutId': workout.id,
+            'isPersonalRecord': workout.is_total_work_personal_record,
+            'totalWork': workout.total_work,
+            'startTime': workout.start_time,
+            'fitnessDiscipline': workout.fitness_discipline,
+            'deviceType': workout.device_type,
+            'rideId': workout?.ride?.id,
+            'rideTitle': workout?.ride?.title,
+            'rideImageUrl': workout?.ride?.image_url,
+            'instructorId': workout?.ride?.instructor_id,
+            'scheduledStartTime': workout?.ride?.scheduled_start_time
+          }
+          workouts.push(data);
+        }
+
+        let responseData = {
+          'page': userWorkoutsJSON.page,
+          'limit': userWorkoutsJSON.limit,
+          'total': userWorkoutsJSON.total,
+          'pageCount': userWorkoutsJSON.page_count,
+          'workouts': workouts
+        }
+
+        res.json(responseData);
+    } catch (error) {
+      console.log('In /user/:userId/workouts, error is: ', error);
+    }
+  }
+});
+
 
 module.exports = router;

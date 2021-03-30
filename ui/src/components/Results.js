@@ -76,7 +76,7 @@ export default class Results extends React.Component {
       })
   }
 
-  componentDidMount() {    
+  componentDidMount() {
     const { rideId } = this.props.match.params;
     // TODO: Replace hardcoded userId with logged in user ID, hardcoding for now
     const appUserId = '7e3d7de8febc41c2b8f288e26ad8de14';

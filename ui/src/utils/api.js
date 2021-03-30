@@ -44,21 +44,21 @@ function sortPlayers(players) {
 }
 
 function getUserMetaInfo(userId) {
-  const endpoint = `${process.env.REACT_APP_API_ENDPOINT}?user=${userId}`;
+  const endpoint = `/pelotonBattle/user/${userId}`;
 
   return fetch(endpoint)
     .then((res) => res.json())
 }
 
 export async function getUserWorkout(userId, rideId) {
-  const endpoint = `${process.env.REACT_APP_API_ENDPOINT}/user/${userId}/workouts?limit=100`;
+  const endpoint = `/pelotonBattle/user/${userId}/workouts?limit=100`;
 
   // Fetch endpoint initially to get page_count for looping
   let pageCountResponse = await fetch(endpoint);
   let pageCountResponseJSON = await pageCountResponse.json();
-  let page_count = pageCountResponseJSON.page_count;
+  let pageCount = pageCountResponseJSON.pageCount;
 
-  for (let page = 0; page < page_count; page++) {
+  for (let page = 0; page < pageCount; page++) {
     let newResp = await fetch(endpoint + `&joins=ride&page=${page}`);
     let newRespJSON = await newResp.json();
 
