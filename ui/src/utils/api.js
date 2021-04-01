@@ -1,4 +1,18 @@
 
+export function authorize(data) {
+  const endpoint = `/pelotonBattle/authorize`;
+
+  return fetch(endpoint, {
+    method: 'POST',
+    body: JSON.stringify(data),
+    headers: { 'Content-Type': 'application/json' }
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      return data
+    })
+}
+
 export function getRides(rideLength) {
   const durationParam = rideLength ? `?duration=${rideLength}` : '';
   const endpoint = `/pelotonBattle/rides${durationParam}`;

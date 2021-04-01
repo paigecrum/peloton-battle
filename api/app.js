@@ -18,8 +18,11 @@ app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
 
 app.use(session({
-  secret: process.env.SESSION_SECRET, 
-  cookie: { maxAge: 7200000 },
+  secret: process.env.SESSION_SECRET,
+  cookie: {
+    httpOnly: true,
+    maxAge: parseInt(process.env.SESSION_MAX_AGE)
+  },
   resave: true,
   saveUninitialized: true
 }));

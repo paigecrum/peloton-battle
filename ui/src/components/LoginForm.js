@@ -1,11 +1,15 @@
 import React from 'react'
-import { Box, Button, Form, FormField, Heading, Text, TextInput } from 'grommet'
+import { Redirect } from 'react-router-dom'
+import { Box, Button, Form, FormField, Heading, TextInput } from 'grommet'
+
+import { authorize } from '../utils/api'
 
 export default class LoginForm extends React.Component {
   state = {
     username: '',
     password: '',
-    error: null
+    error: null,
+    redirectOnLogin: false
   }
 
   handleChange = (e) => {
@@ -16,16 +20,35 @@ export default class LoginForm extends React.Component {
 
   handleSubmit = (e) => {
     e.preventDefault();
-    // TODO: Add Auth logic
+
+    authorize(e.value)
+      .then((data) => {
+        this.setState({
+          username: data.user.username,
+          userId: data.user.id,
+          redirectOnLogin: true
+        })
+      })
+      .catch((error) => {
+        console.warn('Error authorizing user: ', error);
+        this.setState({
+          error: 'Peloton authentication failed with provided credentials.'
+        })
+      })
   }
 
   render() {
-    const { username, password, error } = this.state;
+    const { username, password, error, redirectOnLogin } = this.state;
+
 
     if (error) {
       return (
         <p className='center-text error'>{error}</p>
       )
+    }
+
+    if (redirectOnLogin) {
+      return <Redirect to='/' />
     }
 
     return (
@@ -35,7 +58,7 @@ export default class LoginForm extends React.Component {
         </Heading>
         <Box width='medium' pad='medium' background="#F7F7F7">
           <Form onSubmit={this.handleSubmit} >
-            <FormField name="username" htmlFor="text-input-username" label="Username*">
+            <FormField name="username" htmlFor="text-input-username" label="Username">
               <TextInput
                 id="text-input-username"
                 name="username"
@@ -44,7 +67,7 @@ export default class LoginForm extends React.Component {
                 value={username}
               />
             </FormField>
-            <FormField name="password" htmlFor="text-input-password" label="Password*">
+            <FormField name="password" htmlFor="text-input-password" label="Password">
               <TextInput
                 id="text-input-password"
                 name="password"
@@ -54,9 +77,6 @@ export default class LoginForm extends React.Component {
               />
             </FormField>
             <Button type="submit" primary label="Submit" disabled={!username || !password} />
-            <Text size="small" margin={{ left: 'small' }}>
-              * Required Field
-            </Text>
           </Form>
         </Box>
       </Box>
