@@ -7,7 +7,12 @@ export function authorize(data) {
     body: JSON.stringify(data),
     headers: { 'Content-Type': 'application/json' }
   })
-    .then((res) => res.json())
+    .then((res) => {
+      if (!res.ok) {
+        throw Error('Peloton authentication failed.');
+      }
+      return res.json()
+    })
     .then((data) => {
       return data
     })
