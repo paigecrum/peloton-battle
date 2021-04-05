@@ -1,8 +1,8 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import { Box, Button, Grid, Nav, Heading } from 'grommet'
-import styled from 'styled-components'
 
+import { ErrorMessage } from './ErrorMessage'
 import Loading from './Loading'
 import RideCard from './RideCard'
 import { getRides } from '../utils/api'
@@ -114,8 +114,3 @@ export default class Rides extends React.Component {
     )
   }
 }
-
-const ErrorMessage = styled(Text)`
-  color: #ff1616;
-  margin: 30px 0;
-`;
