@@ -35,6 +35,7 @@ router.post('/authorize', async(req, res, next) => {
     req.session.pelotonSessionId = respJSON.session_id
     req.session.pelotonUserId = respJSON.user_id;
     req.session.pelotonUsername = respJSON.user_data.username;
+    req.session.pelotonAvatarUrl = respJSON.user_data.image_url;
 
     // Set cookie to send in subsequent requests
     const pelotonHeaders = resp.headers.raw()['set-cookie'];
@@ -44,8 +45,10 @@ router.post('/authorize', async(req, res, next) => {
       success: true,
       user: {
         id: req.session.pelotonUserId,
-        username: req.session.pelotonUsername
-      }
+        username: req.session.pelotonUsername,
+        avatarUrl: req.session.pelotonAvatarUrl
+      },
+      expiresAt: req.session.cookie._expires
     });
   } catch (error) {
     console.log('In auth, error is: ', error);
