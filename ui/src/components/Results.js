@@ -1,58 +1,53 @@
-import React from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { Box, Grid, Heading } from 'grommet'
 import queryString from 'query-string'
 
+import { AuthContext } from '../contexts/auth'
+import { ErrorMessage } from './ErrorMessage'
 import Loading from './Loading'
 import RideCard from './RideCard'
 import ResultCard from './ResultCard'
 import { battle, getRideMetadata, getRideOpponents, getUserWorkout } from '../utils/api'
 
-export default class Results extends React.Component {
-  state = {
-    ride: null,
-    winner: null,
-    loser: null,
-    loadingRide: true,
-    loadingPlayers: true,
-    error: null
-  }
+export default function Results(props) {
+  const { authState } = useContext(AuthContext);
+  const [ride, setRide] = useState(null);
+  const [winner, setWinner] = useState(null);
+  const [loser, setLoser] = useState(null);
+  const [loadingRide, setLoadingRide] = useState(true);
+  const [loadingPlayers, setLoadingPlayers] = useState(true);
+  const [error, setError] = useState(null);
 
-  updateRide(rideId) {
+
+  const updateRide = (rideId) => {
     getRideMetadata(rideId)
       .then((ride) => {
-        this.setState({ ride, loadingRide: false })
+        setRide(ride);
+        setLoadingRide(false);
       })
       .catch((error) => {
         console.warn('Error fetching ride: ', error);
-
-        this.setState({
-          error: 'There was an error fetching ride from the ride ID param.',
-          loadingRide: false
-        })
+        setError('There was an error fetching ride from the ride ID param.');
+        setLoadingRide(false);
       })
   }
 
-  updatePlayers(appUser, opponent) {
+  const updatePlayers = (appUser, opponent) => {
     battle([appUser, opponent])
       .then((players) => {
-        this.setState({
-          winner: players[0],
-          loser: players[1],
-          error: null,
-          loadingPlayers: false
-        })
+        setWinner(players[0]);
+        setLoser(players[1]);
+        setError(null);
+        setLoadingPlayers(false);
       })
       .catch((error) => {
         console.warn(error);
-
-        this.setState({
-          error: 'There was an error battling your opponent.',
-          loadingPlayers: false
-        })
+        setError('There was an error battling your opponent.');
+        setLoadingPlayers(false);
       })
   }
 
-  getUserInfo(userId, rideId) {
+  const getUserInfo = (userId, rideId) => {
     return getUserWorkout(userId, rideId)
       .then((data) => {
         return {
@@ -65,7 +60,7 @@ export default class Results extends React.Component {
       })
   }
 
-  getOpponentInfo(opponentUsername, rideId) {
+  const getOpponentInfo = (opponentUsername, rideId) => {
     // Get map of opponents for rideId, then get specific opponent object from that
     return getRideOpponents(rideId)
       .then((opponents) => {
@@ -76,80 +71,67 @@ export default class Results extends React.Component {
       })
   }
 
-  componentDidMount() {
-    const { rideId } = this.props.match.params;
-    // TODO: Replace hardcoded userId with logged in user ID, hardcoding for now
-    const appUserId = '7e3d7de8febc41c2b8f288e26ad8de14';
+  useEffect(() => {
+    const { rideId } = props.match.params;
+    const appUserId = authState.pelotonUserId;
 
     // Conditionally fetch ride & opponent if not navigating via ride details page
-    if (!this.props.location.state) {
-      const { opponent: opponentUsername } = queryString.parse(this.props.location.search);
+    if (!props.location.state) {
+      const { opponent: opponentUsername } = queryString.parse(props.location.search);
 
-      this.updateRide(rideId);
+      updateRide(rideId);
 
       Promise.all([
-        this.getUserInfo(appUserId, rideId),
-        this.getOpponentInfo(opponentUsername, rideId)
+        getUserInfo(appUserId, rideId),
+        getOpponentInfo(opponentUsername, rideId)
       ]).then(([userObj, opponentObj]) => {
-        this.updatePlayers(userObj, opponentObj)
+        updatePlayers(userObj, opponentObj);
       })
     } else {
-      this.setState({
-        ride: this.props.location.state.ride,
-        loadingRide: false
-      })
+      setRide(props.location.state.ride);
+      setLoadingRide(false);
 
-      this.getUserInfo(appUserId, rideId)
+      getUserInfo(appUserId, rideId)
         .then((appUser) => {
-          this.updatePlayers(appUser, this.props.location.state.opponent);
+          updatePlayers(appUser, props.location.state.opponent);
         })
     }
-  }
+  }, [authState, props])
 
-  render() {
-    const { ride, winner, loser, loadingRide, loadingPlayers, error } = this.state;
-
-    if (error) {
-      return (
-        <p className='center-text error'>{error}</p>
-      )
-    }
-
-    return (
-      <Box margin={{ bottom: 'large' }}>
-        <Box align='center'>
-          <Heading textAlign='center' level='1' size='small' margin={{ bottom: 'medium' }} color='dark-2'>
-            Battle Results
-          </Heading>
-        </Box>
-        { loadingRide === true
-          ? <Box align='center'>
-              <Loading text='Loading Ride' />
-            </Box>
-          : <Box align='center'>
-              <RideCard ride={ride} />
-            </Box>
-        }
-        { loadingPlayers === true
-          ? loadingRide === false &&
-            <Box align='center'>
-              <Loading text='Battling' />
-            </Box>
-          : <Box pad={{ top: 'large'}}>
-              <Grid
-                gap='medium'
-                rows='medium'
-                justify='center'
-                columns={{ count: 'fit', size: 'medium' }}
-                margin={{ left: 'xlarge', right: 'xlarge' }}
-              >
-                <ResultCard player={winner} outcome='Winner' />
-                <ResultCard player={loser} outcome='Loser' />
-              </Grid>
-            </Box>
-        }
-
+  return (
+    <Box margin={{ bottom: 'large' }}>
+      <Box align='center'>
+        <Heading textAlign='center' level='1' size='small' margin={{ bottom: 'medium' }} color='dark-2'>
+          Battle Results
+        </Heading>
+        { error && <ErrorMessage>{ error }</ErrorMessage>}
       </Box>
-    )
-  }
+      { loadingRide === true
+        ? <Box align='center'>
+            <Loading text='Loading Ride' />
+          </Box>
+        : <Box align='center'>
+            <RideCard ride={ride} />
+          </Box>
+      }
+      { loadingPlayers === true
+        ? loadingRide === false &&
+          <Box align='center'>
+            <Loading text='Battling' />
+          </Box>
+        : <Box pad={{ top: 'large'}}>
+            <Grid
+              gap='medium'
+              rows='medium'
+              justify='center'
+              columns={{ count: 'fit', size: 'medium' }}
+              margin={{ left: 'xlarge', right: 'xlarge' }}
+            >
+              <ResultCard player={winner} outcome='Winner' />
+              <ResultCard player={loser} outcome='Loser' />
+            </Grid>
+          </Box>
+      }
+    </Box>
+  )
 }

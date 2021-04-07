@@ -6,6 +6,7 @@ import GlobalStyles from './GlobalStyles'
 import Nav from './components/Nav'
 import Loading from './components/Loading'
 import LoginForm from './components/LoginForm'
+import { AuthProvider } from './contexts/auth'
 
 const Rides = React.lazy(() => import('./components/Rides'))
 const Battle = React.lazy(() => import('./components/Battle'))
@@ -21,23 +22,25 @@ const theme = {
 
 function App() {
   return (
-    <Router>
-      <Grommet css="min-height: 100vh" theme={theme}>
-        <div className="container">
-          <Nav />
-          <React.Suspense fallback={<Loading />}>
-            <Switch>
-              <Route exact path='/' component={Rides} />
-              <Route path='/login' component={LoginForm} />
-              <Route exact path='/battle/:rideId' component={Battle} />
-              <Route path='/battle/:rideId/results' component={Results} />
-              <Route render={() => <h1>404</h1>} />
-            </Switch>
-          </React.Suspense>
-        </div>
-        <GlobalStyles />
-      </Grommet>
-    </Router>
+    <AuthProvider>
+      <Router>
+        <Grommet css="min-height: 100vh" theme={theme}>
+          <div className="container">
+            <Nav />
+            <React.Suspense fallback={<Loading />}>
+              <Switch>
+                <Route exact path='/' component={Rides} />
+                <Route path='/login' component={LoginForm} />
+                <Route exact path='/battle/:rideId' component={Battle} />
+                <Route path='/battle/:rideId/results' component={Results} />
+                <Route render={() => <h1>404</h1>} />
+              </Switch>
+            </React.Suspense>
+          </div>
+          <GlobalStyles />
+        </Grommet>
+      </Router>
+    </AuthProvider>
   );
 }
 
