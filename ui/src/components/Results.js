@@ -1,4 +1,5 @@
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useContext, useEffect, useReducer } from 'react'
+import { useLocation, useParams } from 'react-router-dom'
 import { Box, Grid, Heading } from 'grommet'
 import queryString from 'query-string'
 
@@ -9,41 +10,76 @@ import RideCard from './RideCard'
 import ResultCard from './ResultCard'
 import { battle, getRideMetadata, getRideOpponents, getUserWorkout } from '../utils/api'
 
-export default function Results(props) {
-  const { authState } = useContext(AuthContext);
-  const [ride, setRide] = useState(null);
-  const [winner, setWinner] = useState(null);
-  const [loser, setLoser] = useState(null);
-  const [loadingRide, setLoadingRide] = useState(true);
-  const [loadingPlayers, setLoadingPlayers] = useState(true);
-  const [error, setError] = useState(null);
+const rideReducer = (state, action) => {
+  if (action.type === 'success') {
+    return {
+      ride: action.ride,
+      rideError: null,
+      loadingRide: false
+    }
+  } else if (action.type === 'error') {
+    return {
+      ...state,
+      rideError: action.error,
+      loadingRide: false
+    }
+  } else {
+    throw new Error(`This action type isn't supported.`)
+  }
+}
 
+const playersReducer = (state, action) => {
+  if (action.type === 'success') {
+    return {
+      winner: action.winner,
+      loser: action.loser,
+      playersError: null,
+      loadingPlayers: false
+    }
+  } else if (action.type === 'error') {
+    return {
+      ...state,
+      playersError: action.error,
+      loadingPlayers: false
+    }
+  } else {
+    throw new Error(`This action type isn't supported.`)
+  }
+}
+
+export default function Results() {
+  const { rideId } = useParams();
+  const location = useLocation();
+  const { authState } = useContext(AuthContext);
+  const appUserId = authState.pelotonUserId;
+  const [rideState, rideDispatch] = useReducer(
+    rideReducer,
+    { ride: null, rideError: null, loadingRide: true }
+  );
+  const [playersState, playersDispatch] = useReducer(
+    playersReducer,
+    { winner: null, loser: null, playersError: null, loadingPlayers: true }
+  );
 
   const updateRide = (rideId) => {
     getRideMetadata(rideId)
       .then((ride) => {
-        setRide(ride);
-        setLoadingRide(false);
+        rideDispatch({ type: 'success', ride });
       })
       .catch((error) => {
         console.warn('Error fetching ride: ', error);
-        setError('There was an error fetching ride from the ride ID param.');
-        setLoadingRide(false);
+        rideDispatch({ type: 'error', error: 'There was an error fetching ride from the ride ID param.' });
       })
   }
 
   const updatePlayers = (appUser, opponent) => {
     battle([appUser, opponent])
       .then((players) => {
-        setWinner(players[0]);
-        setLoser(players[1]);
-        setError(null);
-        setLoadingPlayers(false);
+        playersDispatch({ type: 'success', winner: players[0], loser: players[1] });
       })
       .catch((error) => {
         console.warn(error);
-        setError('There was an error battling your opponent.');
-        setLoadingPlayers(false);
+        playersDispatch({ type: 'error', error: 'There was an error battling your opponent.' });
       })
   }
 
@@ -72,13 +108,9 @@ export default function Results(props) {
   }
 
   useEffect(() => {
-    const { rideId } = props.match.params;
-    const appUserId = authState.pelotonUserId;
-
     // Conditionally fetch ride & opponent if not navigating via ride details page
-    if (!props.location.state) {
-      const { opponent: opponentUsername } = queryString.parse(props.location.search);
-
+    if (!location.state) {
+      const { opponent: opponentUsername } = queryString.parse(location.search);
       updateRide(rideId);
 
       Promise.all([
@@ -88,15 +120,14 @@ export default function Results(props) {
         updatePlayers(userObj, opponentObj);
       })
     } else {
-      setRide(props.location.state.ride);
-      setLoadingRide(false);
+      rideDispatch({ type: 'success', ride: location.state.ride });
 
       getUserInfo(appUserId, rideId)
         .then((appUser) => {
-          updatePlayers(appUser, props.location.state.opponent);
+          updatePlayers(appUser, location.state.opponent);
         })
     }
-  }, [authState, props])
+  }, [appUserId, rideId, location])
 
   return (
     <Box margin={{ bottom: 'large' }}>
@@ -104,18 +135,19 @@ export default function Results(props) {
         <Heading textAlign='center' level='1' size='small' margin={{ bottom: 'medium' }} color='dark-2'>
           Battle Results
         </Heading>
-        { error && <ErrorMessage>{ error }</ErrorMessage>}
+        { rideState.rideError && <ErrorMessage>{ rideState.rideError }</ErrorMessage>}
+        { playersState.playersError && <ErrorMessage>{ playersState.playersError }</ErrorMessage>}
       </Box>
-      { loadingRide === true
+      { rideState.loadingRide === true
         ? <Box align='center'>
             <Loading text='Loading Ride' />
           </Box>
         : <Box align='center'>
-            <RideCard ride={ride} />
+            <RideCard ride={rideState.ride} />
           </Box>
       }
-      { loadingPlayers === true
-        ? loadingRide === false &&
+      { playersState.loadingPlayers === true
+        ? rideState.loadingRide === false &&
           <Box align='center'>
             <Loading text='Battling' />
           </Box>
@@ -127,8 +159,8 @@ export default function Results(props) {
               columns={{ count: 'fit', size: 'medium' }}
               margin={{ left: 'xlarge', right: 'xlarge' }}
             >
-              <ResultCard player={winner} outcome='Winner' />
-              <ResultCard player={loser} outcome='Loser' />
+              <ResultCard player={playersState.winner} outcome='Winner' />
+              <ResultCard player={playersState.loser} outcome='Loser' />
             </Grid>
           </Box>
       }
