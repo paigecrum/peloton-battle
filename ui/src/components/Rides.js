@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useReducer, useRef, useState } from 'react'
 import PropTypes from 'prop-types'
 import { Box, Button, Grid, Nav, Heading } from 'grommet'
 
@@ -48,69 +48,66 @@ RidesGrid.propTypes = {
   rides: PropTypes.array.isRequired
 }
 
-export default class Rides extends React.Component {
-  state = {
-    selectedRideLength: 'All',
-    rides: {},
-    error: null
-  }
-
-  componentDidMount() {
-    this.updateRideLength(this.state.selectedRideLength)
-  }
-
-  isLoading = () => {
-    const { selectedRideLength, rides, error } = this.state
-    return !rides[selectedRideLength] && error === null
-  }
-
-  updateRideLength = (selectedRideLength) => {
-    this.setState({
-      selectedRideLength,
+const ridesReducer = (state, action) => {
+  if (action.type === 'success') {
+    return {
+      ...state,
+      [action.selectedRideLength]: action.rides,
       error: null
-    })
+    }
+  } else if (action.type === 'error') {
+    return {
+      ...state,
+      error: action.error
+    }
+  } else {
+    throw new Error(`This action type isn't supported.`)
+  }
+}
 
-    if (!this.state.rides[selectedRideLength]) {
+export default function Rides() {
+  const [selectedRideLength, setSelectedRideLength] = useState('All');
+  const [state, dispatch] = useReducer(ridesReducer, { error: null });
+  const fetchedRideLengths = useRef([]);
+
+  useEffect(() => {
+    if (fetchedRideLengths.current.includes(selectedRideLength) === false) {
+      fetchedRideLengths.current.push(selectedRideLength)
+
       getRides(rideLengthConversions[selectedRideLength])
-        .then((data) => {
-          this.setState(({ rides }) => {
-            return {
-              rides: {
-                ...rides,
-                [selectedRideLength]: data
-              }
-            }
+        .then((rides) => {
+          dispatch({
+            type: 'success',
+            selectedRideLength,
+            rides
           })
         })
         .catch((error) => {
           console.warn('Error fetching rides: ', error)
-
-          this.setState({
-            error: 'There was an error fetching your rides.'
+          dispatch({
+            type: 'error',
+            error: 'There was an error fetching the repositories.'
           })
         })
-
     }
-  }
+  }, [fetchedRideLengths, selectedRideLength])
 
-  render() {
-    const { selectedRideLength, rides, error } = this.state;
+  const isLoading = () => !state[selectedRideLength] && state.error === null;
 
-    return (
-      <React.Fragment>
-        <RideLengthNav
-          selected={ selectedRideLength }
-          onUpdateRideLength={ this.updateRideLength }
-        />
-        <Box align='center'>
-          <Heading margin={{ bottom: 'medium' }} level='3' size='small' color='dark-2'>
-            Select a ride you've taken to battle a friend.
-          </Heading>
-          { this.isLoading() && <Loading text={`Loading ${selectedRideLength} Rides`} />}
-          { error && <ErrorMessage>{ error }</ErrorMessage>}
-        </Box>
-        { rides[selectedRideLength] && <RidesGrid rides={rides[selectedRideLength]} /> }
-      </React.Fragment>
-    )
-  }
+  return (
+    <React.Fragment>
+      <RideLengthNav
+        selected={ selectedRideLength }
+        onUpdateRideLength={ setSelectedRideLength }
+      />
+      <Box align='center'>
+        <Heading margin={{ bottom: 'medium' }} level='3' size='small' color='dark-2'>
+          Select a ride you've taken to battle a friend.
+        </Heading>
+        { isLoading() && <Loading text={`Loading ${selectedRideLength} Rides`} />}
+        { state.error && <ErrorMessage>{ state.error }</ErrorMessage>}
+      </Box>
+      { state[selectedRideLength] && <RidesGrid rides={state[selectedRideLength]} /> }
+    </React.Fragment>
+  )
 }
