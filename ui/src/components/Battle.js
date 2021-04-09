@@ -1,4 +1,5 @@
-import React from 'react'
+import React, { useEffect, useReducer } from 'react'
+import { useLocation, useParams } from 'react-router-dom'
 import { Box, Grid, Heading } from 'grommet'
 
 import Loading from './Loading'
@@ -6,95 +7,125 @@ import RideCard from './RideCard'
 import OpponentCard from './OpponentCard'
 import { getRideMetadata, getRideOpponents } from '../utils/api'
 
-export default class Battle extends React.Component {
-  state = {
-    ride: null,
-    opponents: [],
-    error: null,
-    loadingRide: true,
-    loadingOpponents: true
+const rideReducer = (state, action) => {
+  if (action.type === 'success') {
+    return {
+      ride: action.ride,
+      rideError: null,
+      loadingRide: false
+    }
+  } else if (action.type === 'error') {
+    return {
+      ...state,
+      rideError: action.error,
+      loadingRide: false
+    }
+  } else {
+    throw new Error(`This action type isn't supported.`)
   }
+}
 
-  updateRide(rideId) {
+const opponentsReducer = (state, action) => {
+  if (action.type === 'success') {
+    return {
+      opponents: action.opponents,
+      opponentsError: null,
+      loadingOpponents: false
+    }
+  } else if (action.type === 'error') {
+    return {
+      ...state,
+      opponentsError: action.error,
+      loadingOpponents: false
+    }
+  } else {
+    throw new Error(`This action type isn't supported.`)
+  }
+}
+
+export default function Battle() {
+  const { rideId } = useParams();
+  const location = useLocation();
+  const [rideState, dispatchRide] = useReducer(
+    rideReducer,
+    { ride: null, rideError: null, loadingRide: true }
+  );
+  const [opponentsState, dispatchOpponents] = useReducer(
+    opponentsReducer,
+    { opponents: [], opponentsError: null, loadingOpponents: true }
+  );
+
+  const updateRide = (rideId) => {
     getRideMetadata(rideId)
       .then((ride) => {
-        this.setState({ ride, loadingRide: false })
+        dispatchRide({ type: 'success', ride });
       })
       .catch((error) => {
         console.warn('Error fetching ride: ', error);
-        this.setState({
-          error: 'There was an error fetching ride from the ride ID param.',
-          loadingRide: false
-        })
+        dispatchRide({ type: 'error', error: 'There was an error fetching ride from the ride ID param.' });
       })
   }
 
-  componentDidMount() {
-    const { rideId } = this.props.match.params;
-
+  useEffect(() => {
    // Conditionally fetch ride if not navigating via ride details page
-    if (!this.props.location.state) {
-      this.updateRide(rideId);
+    if (!location.state) {
+      updateRide(rideId);
     } else {
-      this.setState({
-        ride: this.props.location.state.ride,
-        loadingRide: false
-      })
+      dispatchRide({ type: 'success', ride: location.state.ride });
     }
 
     getRideOpponents(rideId)
       .then((opponents) => {
-        this.setState({ opponents, loadingOpponents: false, error: null })
+        dispatchOpponents({ type: 'success', opponents });
       })
       .catch((error) => {
         console.warn('Error fetching ride info: ', error)
-
-        this.setState({
-          error: 'There was an error fetching your ride info.'
-        })
+        dispatchOpponents({ type: 'error', error: 'There was an error fetching your ride info.' });
       })
-  }
+  }, [rideId, location.state])
 
-  render() {
-    const { ride, opponents, loadingRide, loadingOpponents, error } = this.state;
-
-    if (error) {
-      return (
-        <p className='center-text error'>{error}</p>
-      )
-    }
-
+  if (rideState.error) {
     return (
-      <Box margin='large'>
-        { loadingRide === true
-          ? <Box align='center'>
-              <Loading text='Loading Ride' />
-            </Box>
-          : <Box align='center'>
-              <RideCard ride={ride} />
-            </Box>
-        }
-        { loadingOpponents === true
-          ? loadingRide === false &&
-            <Box align='center'>
-              <Loading text='Loading Opponents' />
-            </Box>
-          : <React.Fragment>
-              <Box align='center'>
-                <Heading textAlign='center' margin={{ bottom: 'medium' }} level='3' size='small' color='dark-2'>
-                  Pick one of your {Object.keys(opponents).length} friends who has taken this ride to battle.
-                </Heading>
-              </Box>
-              <Grid gap='medium' rows='small' justify='center' columns={{ count: 'fit', size: 'small' }}>
-                { Object.keys(opponents).map((opponentUsername) => {
-                  return (
-                    <OpponentCard key={opponents[opponentUsername].userId} opponent={opponents[opponentUsername]} ride={ride} />
-                  )
-                })}
-              </Grid>
-            </React.Fragment>
-        }
-      </Box>
+      <p className='center-text error'>{rideState.error}</p>
     )
   }
+
+  if (opponentsState.error) {
+    return (
+      <p className='center-text error'>{opponentsState.error}</p>
+    )
+  }
+
+  return (
+    <Box margin='large'>
+      { rideState.loadingRide === true
+        ? <Box align='center'>
+            <Loading text='Loading Ride' />
+          </Box>
+        : <Box align='center'>
+            <RideCard ride={rideState.ride} />
+          </Box>
+      }
+      { opponentsState.loadingOpponents === true
+        ? rideState.loadingRide === false &&
+          <Box align='center'>
+            <Loading text='Loading Opponents' />
+          </Box>
+        : <React.Fragment>
+            <Box align='center'>
+              <Heading textAlign='center' margin={{ bottom: 'medium' }} level='3' size='small' color='dark-2'>
+                Pick one of your {Object.keys(opponentsState.opponents).length} friends who has taken this ride to battle.
+              </Heading>
+            </Box>
+            <Grid gap='medium' rows='small' justify='center' columns={{ count: 'fit', size: 'small' }}>
+              { Object.keys(opponentsState.opponents).map((opponentUsername) => {
+                return (
+                  <OpponentCard key={opponentsState.opponents[opponentUsername].userId} opponent={opponentsState.opponents[opponentUsername]} ride={rideState.ride} />
+                )
+              })}
+            </Grid>
+          </React.Fragment>
+      }
+    </Box>
+  )
 }
