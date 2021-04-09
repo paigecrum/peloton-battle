@@ -52,11 +52,11 @@ export default function Results() {
   const location = useLocation();
   const { authState } = useContext(AuthContext);
   const appUserId = authState.pelotonUserId;
-  const [rideState, rideDispatch] = useReducer(
+  const [rideState, dispatchRide] = useReducer(
     rideReducer,
     { ride: null, rideError: null, loadingRide: true }
   );
-  const [playersState, playersDispatch] = useReducer(
+  const [playersState, dispatchPlayers] = useReducer(
     playersReducer,
     { winner: null, loser: null, playersError: null, loadingPlayers: true }
   );
@@ -64,22 +64,22 @@ export default function Results() {
   const updateRide = (rideId) => {
     getRideMetadata(rideId)
       .then((ride) => {
-        rideDispatch({ type: 'success', ride });
+        dispatchRide({ type: 'success', ride });
       })
       .catch((error) => {
         console.warn('Error fetching ride: ', error);
-        rideDispatch({ type: 'error', error: 'There was an error fetching ride from the ride ID param.' });
+        dispatchRide({ type: 'error', error: 'There was an error fetching ride from the ride ID param.' });
       })
   }
 
   const updatePlayers = (appUser, opponent) => {
     battle([appUser, opponent])
       .then((players) => {
-        playersDispatch({ type: 'success', winner: players[0], loser: players[1] });
+        dispatchPlayers({ type: 'success', winner: players[0], loser: players[1] });
       })
       .catch((error) => {
         console.warn(error);
-        playersDispatch({ type: 'error', error: 'There was an error battling your opponent.' });
+        dispatchPlayers({ type: 'error', error: 'There was an error battling your opponent.' });
       })
   }
 
@@ -120,7 +120,7 @@ export default function Results() {
         updatePlayers(userObj, opponentObj);
       })
     } else {
-      rideDispatch({ type: 'success', ride: location.state.ride });
+      dispatchRide({ type: 'success', ride: location.state.ride });
 
       getUserInfo(appUserId, rideId)
         .then((appUser) => {
