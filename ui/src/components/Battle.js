@@ -1,29 +1,12 @@
 import React, { useEffect, useReducer } from 'react'
-import { useLocation, useParams } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 import { Box, Grid, Heading } from 'grommet'
 
 import Loading from './Loading'
 import RideCard from './RideCard'
 import OpponentCard from './OpponentCard'
-import { getRideMetadata, getRideOpponents } from '../utils/api'
-
-const rideReducer = (state, action) => {
-  if (action.type === 'success') {
-    return {
-      ride: action.ride,
-      rideError: null,
-      loadingRide: false
-    }
-  } else if (action.type === 'error') {
-    return {
-      ...state,
-      rideError: action.error,
-      loadingRide: false
-    }
-  } else {
-    throw new Error(`This action type isn't supported.`)
-  }
-}
+import useRide from '../hooks/useRide'
+import { getRideOpponents } from '../utils/api'
 
 const opponentsReducer = (state, action) => {
   if (action.type === 'success') {
@@ -45,35 +28,13 @@ const opponentsReducer = (state, action) => {
 
 export default function Battle() {
   const { rideId } = useParams();
-  const location = useLocation();
-  const [rideState, dispatchRide] = useReducer(
-    rideReducer,
-    { ride: null, rideError: null, loadingRide: true }
-  );
+  const rideState = useRide(rideId);
   const [opponentsState, dispatchOpponents] = useReducer(
     opponentsReducer,
     { opponents: [], opponentsError: null, loadingOpponents: true }
   );
 
-  const updateRide = (rideId) => {
-    getRideMetadata(rideId)
-      .then((ride) => {
-        dispatchRide({ type: 'success', ride });
-      })
-      .catch((error) => {
-        console.warn('Error fetching ride: ', error);
-        dispatchRide({ type: 'error', error: 'There was an error fetching ride from the ride ID param.' });
-      })
-  }
-
   useEffect(() => {
-   // Conditionally fetch ride if not navigating via ride details page
-    if (!location.state) {
-      updateRide(rideId);
-    } else {
-      dispatchRide({ type: 'success', ride: location.state.ride });
-    }
-
     getRideOpponents(rideId)
       .then((opponents) => {
         dispatchOpponents({ type: 'success', opponents });
@@ -82,7 +43,7 @@ export default function Battle() {
         console.warn('Error fetching ride info: ', error)
         dispatchOpponents({ type: 'error', error: 'There was an error fetching your ride info.' });
       })
-  }, [rideId, location.state])
+  }, [rideId])
 
   if (rideState.error) {
     return (

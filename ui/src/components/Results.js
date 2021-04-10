@@ -8,25 +8,9 @@ import { ErrorMessage } from './ErrorMessage'
 import Loading from './Loading'
 import RideCard from './RideCard'
 import ResultCard from './ResultCard'
-import { battle, getRideMetadata, getRideOpponents, getUserWorkout } from '../utils/api'
+import useRide from '../hooks/useRide'
+import { battle, getRideOpponents, getUserWorkout } from '../utils/api'
 
-const rideReducer = (state, action) => {
-  if (action.type === 'success') {
-    return {
-      ride: action.ride,
-      rideError: null,
-      loadingRide: false
-    }
-  } else if (action.type === 'error') {
-    return {
-      ...state,
-      rideError: action.error,
-      loadingRide: false
-    }
-  } else {
-    throw new Error(`This action type isn't supported.`)
-  }
-}
 
 const playersReducer = (state, action) => {
   if (action.type === 'success') {
@@ -49,28 +33,14 @@ const playersReducer = (state, action) => {
 
 export default function Results() {
   const { rideId } = useParams();
+  const rideState = useRide(rideId);
   const location = useLocation();
   const { authState } = useContext(AuthContext);
   const appUserId = authState.pelotonUserId;
-  const [rideState, dispatchRide] = useReducer(
-    rideReducer,
-    { ride: null, rideError: null, loadingRide: true }
-  );
   const [playersState, dispatchPlayers] = useReducer(
     playersReducer,
     { winner: null, loser: null, playersError: null, loadingPlayers: true }
   );
-
-  const updateRide = (rideId) => {
-    getRideMetadata(rideId)
-      .then((ride) => {
-        dispatchRide({ type: 'success', ride });
-      })
-      .catch((error) => {
-        console.warn('Error fetching ride: ', error);
-        dispatchRide({ type: 'error', error: 'There was an error fetching ride from the ride ID param.' });
-      })
-  }
 
   const updatePlayers = (appUser, opponent) => {
     battle([appUser, opponent])
@@ -111,7 +81,6 @@ export default function Results() {
     // Conditionally fetch ride & opponent if not navigating via ride details page
     if (!location.state) {
       const { opponent: opponentUsername } = queryString.parse(location.search);
-      updateRide(rideId);
 
       Promise.all([
         getUserInfo(appUserId, rideId),
@@ -120,14 +89,12 @@ export default function Results() {
         updatePlayers(userObj, opponentObj);
       })
     } else {
-      dispatchRide({ type: 'success', ride: location.state.ride });
-
       getUserInfo(appUserId, rideId)
         .then((appUser) => {
           updatePlayers(appUser, location.state.opponent);
         })
     }
-  }, [appUserId, rideId, location])
+  }, [appUserId, rideId, location.state, location.search])
 
   return (
     <Box margin={{ bottom: 'large' }}>
