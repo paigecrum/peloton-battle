@@ -126,8 +126,14 @@ export default function Results() {
               columns={{ count: 'fit', size: 'medium' }}
               margin={{ left: 'xlarge', right: 'xlarge' }}
             >
-              <ResultCard player={playersState.winner} outcome='Winner' />
-              <ResultCard player={playersState.loser} outcome='Loser' />
+              <ResultCard
+                player={playersState.winner}
+                outcome={playersState.winner.totalOutput === playersState.loser.totalOutput ? 'Tie' : 'Winner'}
+              />
+              <ResultCard
+                player={playersState.loser}
+                outcome={playersState.winner.totalOutput === playersState.loser.totalOutput ? 'Tie' : 'Loser'}
+              />
             </Grid>
           </Box>
       }
