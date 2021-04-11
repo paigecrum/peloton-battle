@@ -7,9 +7,7 @@ const cors = require('cors');
 const session = require('express-session');
 require('dotenv').config();
 
-const indexRouter = require('./routes/index');
-const usersRouter = require('./routes/users');
-const pelotonRouter = require('./routes/pelotonBattle');
+const pelotonApiRouter = require('./routes/pelotonApi');
 
 const app = express();
 
@@ -34,10 +32,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-
-app.use('/', indexRouter);
-app.use('/users', usersRouter);
-app.use('/pelotonBattle', pelotonRouter);
+app.use('/api', pelotonApiRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

@@ -1,6 +1,6 @@
 
 export function authorize(data) {
-  const endpoint = `/pelotonBattle/authorize`;
+  const endpoint = `/api/authorize`;
 
   return fetch(endpoint, {
     method: 'POST',
@@ -20,7 +20,7 @@ export function authorize(data) {
 
 export function getRides(rideLength) {
   const durationParam = rideLength ? `?duration=${rideLength}` : '';
-  const endpoint = `/pelotonBattle/rides${durationParam}`;
+  const endpoint = `/api/rides${durationParam}`;
 
   return fetch(endpoint)
     .then((res) => res.json())
@@ -30,7 +30,7 @@ export function getRides(rideLength) {
 }
 
 export function getRideMetadata(rideId) {
-  const endpoint = `/pelotonBattle/ride/${rideId}`;
+  const endpoint = `/api/ride/${rideId}`;
 
   return fetch(endpoint)
     .then((res) => res.json())
@@ -40,7 +40,7 @@ export function getRideMetadata(rideId) {
 }
 
 export function getRideOpponents(rideId) {
-  const endpoint = `/pelotonBattle/ride/${rideId}/opponents`;
+  const endpoint = `/api/ride/${rideId}/opponents`;
 
   return fetch(endpoint)
     .then((res) => res.json())
@@ -50,7 +50,7 @@ export function getRideOpponents(rideId) {
 }
 
 function getPlayerRideStats(workoutId) {
-  const endpoint = `/pelotonBattle/workout/${workoutId}`;
+  const endpoint = `/api/workout/${workoutId}`;
 
   return fetch(endpoint)
     .then((res) => res.json())
@@ -63,14 +63,14 @@ function sortPlayers(players) {
 }
 
 function getUserMetaInfo(userId) {
-  const endpoint = `/pelotonBattle/user/${userId}`;
+  const endpoint = `/api/user/${userId}`;
 
   return fetch(endpoint)
     .then((res) => res.json())
 }
 
 export async function getUserWorkout(userId, rideId) {
-  const endpoint = `/pelotonBattle/user/${userId}/workouts?limit=100`;
+  const endpoint = `/api/user/${userId}/workouts?limit=100`;
 
   // Fetch endpoint initially to get page_count for looping
   let pageCountResponse = await fetch(endpoint);

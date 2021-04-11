@@ -1,6 +1,6 @@
 import React, { useEffect, useReducer, useRef, useState } from 'react'
 import PropTypes from 'prop-types'
-import { Box, Button, Grid, Nav, Heading } from 'grommet'
+import { Box, Button, Grid, Heading, Nav, Text } from 'grommet'
 
 import { ErrorMessage } from './ErrorMessage'
 import Loading from './Loading'
@@ -95,19 +95,33 @@ export default function Rides() {
   const isLoading = () => !state[selectedRideLength] && state.error === null;
 
   return (
-    <React.Fragment>
+    <>
       <RideLengthNav
         selected={ selectedRideLength }
         onUpdateRideLength={ setSelectedRideLength }
       />
       <Box align='center'>
-        <Heading margin={{ bottom: 'medium' }} level='3' size='small' color='dark-2'>
-          Select a ride you've taken to battle a friend.
-        </Heading>
         { isLoading() && <Loading text={`Loading ${selectedRideLength} Rides`} />}
         { state.error && <ErrorMessage>{ state.error }</ErrorMessage>}
       </Box>
-      { state[selectedRideLength] && <RidesGrid rides={state[selectedRideLength]} /> }
-    </React.Fragment>
+      { state[selectedRideLength] && state[selectedRideLength].length > 0 &&
+        <>
+          <Box align='center'>
+            <Heading margin={{ bottom: 'medium' }} level='3' size='small' color='dark-2'>
+              Select a ride you've taken to battle a friend.
+            </Heading>
+          </Box>
+          <RidesGrid rides={state[selectedRideLength]} />
+        </>
+      }
+      { !isLoading() && state[selectedRideLength] && state[selectedRideLength].length === 0 &&
+        <Box align='center'>
+          <Heading margin={{ bottom: 'medium' }} level='3' size='small' color='dark-2'>
+            No rides to display.
+          </Heading>
+          <Text>Maybe you should try a {selectedRideLength} ride. 😉</Text>
+        </Box>
+      }
+    </>
   )
 }

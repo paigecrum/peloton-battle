@@ -42,7 +42,7 @@ router.post('/authorize', async(req, res, next) => {
     req.session.pelotonSessionCookie = pelotonHeaders.join(';');
 
     res.json({
-      success: true,
+      message: 'Authentication successful',
       user: {
         id: req.session.pelotonUserId,
         username: req.session.pelotonUsername,
