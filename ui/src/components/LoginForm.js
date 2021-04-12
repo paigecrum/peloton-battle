@@ -8,7 +8,7 @@ import Loading from './Loading'
 import { AuthContext } from '../contexts/auth'
 
 export default function LoginForm() {
-  const { authState } = useContext(AuthContext);
+  const authContext = useContext(AuthContext);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState(null);
@@ -29,7 +29,7 @@ export default function LoginForm() {
     setLoginLoading(true);
     authorize(e.value)
       .then((data) => {
-        authState.setAuthState(data);
+        authContext.setAuthState(data);
         setRedirectOnLogin(true);
       })
       .catch((error) => {
@@ -53,6 +53,7 @@ export default function LoginForm() {
 
   return (
     <Box align='center' pad='large'>
+      { authContext.authState.isAuthenticated && <Redirect to ='/' />}
       { error && <ErrorMessage>{ error }</ErrorMessage>}
       <Heading level={2} size="xsmall">
         Authenticate to your Peloton account to get started

@@ -14,13 +14,17 @@ export default function Nav() {
         <Button icon={<Home />} hoverIndicator />
       </NavLink>
       <Box direction='row'>
-        <Text size='small' alignSelf='center'>{authState.pelotonUsername}</Text>
-        <Menu
-          label={<Avatar src={authState.pelotonAvatarUrl} size='small' />}
-          items={[{
-            label: 'logout',
-            onClick: () => logout()
-          }]} />
+        { authState.userInfo && authState.userInfo.pelotonUsername &&
+          <>
+            <Text size='small' alignSelf='center'>{authState.userInfo.pelotonUsername}</Text>
+            <Menu
+              label={<Avatar src={authState.userInfo.pelotonAvatarUrl} size='small' />}
+              items={[{
+                label: 'logout',
+                onClick: () => logout()
+              }]} />
+          </>
+        }
       </Box>
     </Header>
   )

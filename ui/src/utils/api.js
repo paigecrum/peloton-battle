@@ -18,6 +18,27 @@ export function authorize(data) {
     })
 }
 
+export function checkAuthStatus() {
+  const endpoint = `/api/checkAuthStatus`;
+
+  return fetch(endpoint)
+    .then((res) => {
+      if (!res.ok) {
+        throw Error('Auth status check failed');
+      }
+      return res.json()
+    });
+}
+
+export function logout() {
+  const endpoint = `/api/logout`;
+
+  return fetch(endpoint)
+    .then((res) => {
+      return res.json()
+    })
+}
+
 export function getRides(rideLength) {
   const durationParam = rideLength ? `?duration=${rideLength}` : '';
   const endpoint = `/api/rides${durationParam}`;
