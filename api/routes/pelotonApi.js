@@ -2,20 +2,39 @@ var express = require('express');
 var router = express.Router();
 const fetch = require('node-fetch');
 
-const BASE_URL = process.env.PELOTON_API_BASE_URL;
+const BASE_URL = 'https://api.onepeloton.com';
 const BASE_HEADERS = {
   'Content-Type': 'application/json',
-  'User-Agent': process.env.PELOTON_USER_AGENT,
+  'User-Agent': 'peloton-client-library',
   'peloton-platform': 'web' // Required Peloton-Platform header for select endpoints
 }
 
 const requireAuth = (req, res, next) => {
-  const { pelotonSessionId } = req.session;
-  if (!pelotonSessionId) {
-    return res.status(401).json({message: 'Unauthorized'});
+  const { user } = req.session;
+  if (!user) {
+    return res.status(401).json({ message: 'Unauthorized' });
   }
   next();
 }
+
+router.get('/checkAuthStatus', (req, res, next) => {
+  const { user } = req.session;
+  if (!user) {
+    return res.status(401).json({ message: 'Unauthorized' });
+  }
+
+  res.json({ user });
+})
+
+// change to post or delete?
+router.get('/logout', requireAuth, async(req, res, next) => {
+  req.session.destroy(function(err) {
+    if (err) {
+      return res.status(400).json({ message: 'There was a problem logging out.' })
+    }
+    res.json({ message: 'Logout successful' })
+  });
+});
 
 router.post('/authorize', async(req, res, next) => {
   try {
@@ -32,27 +51,29 @@ router.post('/authorize', async(req, res, next) => {
     });
     const respJSON = await resp.json();
 
-    req.session.pelotonSessionId = respJSON.session_id
-    req.session.pelotonUserId = respJSON.user_id;
-    req.session.pelotonUsername = respJSON.user_data.username;
-    req.session.pelotonAvatarUrl = respJSON.user_data.image_url;
+    if (resp.ok) {
+      req.session.pelotonSessionId = respJSON.session_id;
+      req.session.user = {
+        pelotonUserId: respJSON.user_id,
+        pelotonUsername: respJSON.user_data.username,
+        pelotonAvatarUrl: respJSON.user_data.image_url,
+      }
+      // Set cookie to send in subsequent requests
+      const pelotonHeaders = resp.headers.raw()['set-cookie'];
+      req.session.pelotonSessionCookie = pelotonHeaders.join(';');
 
-    // Set cookie to send in subsequent requests
-    const pelotonHeaders = resp.headers.raw()['set-cookie'];
-    req.session.pelotonSessionCookie = pelotonHeaders.join(';');
-
-    res.json({
-      message: 'Authentication successful',
-      user: {
-        id: req.session.pelotonUserId,
-        username: req.session.pelotonUsername,
-        avatarUrl: req.session.pelotonAvatarUrl
-      },
-      expiresAt: req.session.cookie._expires
-    });
+      res.json({
+        message: 'Authentication successful',
+        userInfo: req.session.user
+      });
+    } else {
+      res.status(403).json({
+        message: 'Wrong username or password.'
+      });
+    }
   } catch (error) {
     console.log('In auth, error is: ', error);
-    res.status(400).json({message: 'Peloton authentication failed.'});
+    res.status(400).json({ message: 'Something went wrong authenticating to Peloton API.' });
   }
 });
 

@@ -36,7 +36,7 @@ export default function Results() {
   const rideState = useRide(rideId);
   const location = useLocation();
   const { authState } = useContext(AuthContext);
-  const appUserId = authState.pelotonUserId;
+  const appUserId = authState.userInfo.pelotonUserId;
   const [playersState, dispatchPlayers] = useReducer(
     playersReducer,
     { winner: null, loser: null, playersError: null, loadingPlayers: true }

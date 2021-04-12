@@ -1,41 +1,63 @@
-import React, { createContext, useState } from 'react'
+import React, { createContext, useEffect, useState } from 'react'
+import { useHistory } from 'react-router-dom';
+
+import { checkAuthStatus, logout as logoutUser } from '../utils/api'
 
 const AuthContext = createContext();
 const { Provider } = AuthContext;
 
 const AuthProvider = ({ children }) => {
+  const history = useHistory();
   const [authState, setAuthState] = useState({
-    pelotonUsername: null,
-    pelotonUserId: null,
-    pelotonAvatarUrl: null,
-    expiresAt: null,
-    setAuthState: (authInfo) => setAuthInfo(authInfo)
+    userInfo: null,
+    isAuthenticated: false
   });
 
-  const setAuthInfo = ({ user, expiresAt }) => {
+  useEffect(() => {
+      checkAuthStatus()
+        .then(({ user }) => {
+          setAuthState({
+            userInfo: user,
+            isAuthenticated: true
+          })
+        })
+        .catch((err) => {
+          setAuthState({
+            userInfo: {},
+            isAuthenticated: false
+          })
+        })
+  }, [])
+
+  const setAuthInfo = ({ userInfo }) => {
     setAuthState({
-      pelotonUserId: user.id,
-      pelotonUsername: user.username,
-      pelotonAvatarUrl: user.avatarUrl,
-      expiresAt: expiresAt
-    })
+      userInfo,
+      isAuthenticated: userInfo && userInfo.pelotonUserId ? true : false
+    });
   }
 
-  const isAuthenticated = () => {
-    if (!authState.pelotonUserId || !authState.expiresAt) {
-      return false;
-    }
-    return (
-      new Date().getTime() / 1000 < authState.expiresAt
-    );
-  };
-
   const logout = () => {
-    setAuthState({});
+    logoutUser()
+      .then((data) => {
+        setAuthState({
+          userInfo: {},
+          isAuthenticated: false
+        })
+        history.push('/');
+      })
+      .catch((err) => {
+        console.log('Error logging out: ', err);
+      })
   }
 
   return (
-    <Provider value={{authState, isAuthenticated, logout}}>
+    <Provider
+      value={{
+        authState,
+        setAuthState: (authInfo) => setAuthInfo(authInfo),
+        logout
+      }}
+    >
       { children }
     </Provider>
   )

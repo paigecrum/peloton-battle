@@ -1,12 +1,12 @@
-import React from 'react'
-import { BrowserRouter as Router, Route, Switch } from 'react-router-dom'
-import { Grommet } from 'grommet'
+import React, { useContext } from 'react'
+import { Redirect, Route, BrowserRouter as Router, Switch } from 'react-router-dom'
+import { Box, Grommet } from 'grommet'
 
 import GlobalStyles from './GlobalStyles'
 import Nav from './components/Nav'
 import Loading from './components/Loading'
 import LoginForm from './components/LoginForm'
-import { AuthProvider } from './contexts/auth'
+import { AuthContext, AuthProvider } from './contexts/auth'
 
 const Rides = React.lazy(() => import('./components/Rides'))
 const Battle = React.lazy(() => import('./components/Battle'))
@@ -20,27 +20,74 @@ const theme = {
   },
 };
 
+const UnauthenticatedRoutes = () => {
+  return (
+    <Switch>
+      <Route path='/login'>
+        <LoginForm />
+      </Route>
+      <Route render={() => <h1>404</h1>} />
+    </Switch>
+  )
+}
+const AuthenticatedRoute = ({ children, ...rest }) => {
+  const { authState } = useContext(AuthContext);
+  return (
+    <Route
+      {...rest}
+      render={() =>
+        authState.isAuthenticated ? (
+          children
+        ) : (
+          <Redirect to='/login' />
+        )
+      }
+    />
+  );
+};
+
+
+function AppRoutes() {
+  const { authState } = useContext(AuthContext);
+  if (!authState.userInfo) {
+    return (
+      <Box align='center'>
+        <Loading />
+      </Box>
+    )
+  }
+
+  return (
+    <React.Suspense fallback={<Loading />}>
+      <Switch>
+        <AuthenticatedRoute exact path='/'>
+          <Rides />
+        </AuthenticatedRoute>
+        <AuthenticatedRoute exact path='/battle/:rideId'>
+          <Battle />
+        </AuthenticatedRoute>
+        <AuthenticatedRoute path='/battle/:rideId/results'>
+          <Results />
+        </AuthenticatedRoute>
+        <UnauthenticatedRoutes />
+      </Switch>
+    </React.Suspense>
+  )
+}
+
 function App() {
   return (
-    <AuthProvider>
-      <Router>
+    <Router>
+      <AuthProvider>
         <Grommet css="min-height: 100vh" theme={theme}>
           <div className="container">
             <Nav />
-            <React.Suspense fallback={<Loading />}>
-              <Switch>
-                <Route exact path='/' component={Rides} />
-                <Route path='/login' component={LoginForm} />
-                <Route exact path='/battle/:rideId' component={Battle} />
-                <Route path='/battle/:rideId/results' component={Results} />
-                <Route render={() => <h1>404</h1>} />
-              </Switch>
-            </React.Suspense>
+            <AppRoutes />
           </div>
           <GlobalStyles />
         </Grommet>
-      </Router>
-    </AuthProvider>
+      </AuthProvider>
+    </Router>
   );
 }
 
