@@ -86,7 +86,7 @@ export default function Rides() {
           console.warn('Error fetching rides: ', error)
           dispatch({
             type: 'error',
-            error: 'There was an error fetching the repositories.'
+            error: 'There was an error fetching the rides.'
           })
         })
     }

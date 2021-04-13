@@ -41,11 +41,14 @@ const AuthenticatedRoute = ({ children, ...rest }) => {
   return (
     <Route
       {...rest}
-      render={() =>
+      render={({ location }) =>
         authState.isAuthenticated ? (
           children
         ) : (
-          <Redirect to='/login' />
+          <Redirect to={{
+            pathname: '/login',
+            state: { from: location }
+          }} />
         )
       }
     />

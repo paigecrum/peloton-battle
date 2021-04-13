@@ -1,5 +1,5 @@
 import React, { useContext, useState } from 'react'
-import { Redirect } from 'react-router-dom'
+import { Redirect, useLocation } from 'react-router-dom'
 import { Box, Button, Form, FormField, Heading, TextInput } from 'grommet'
 
 import { authorize } from '../utils/api'
@@ -9,6 +9,7 @@ import { AuthContext } from '../contexts/auth'
 
 export default function LoginForm() {
   const authContext = useContext(AuthContext);
+  const { state } = useLocation();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState(null);
@@ -40,7 +41,7 @@ export default function LoginForm() {
   }
 
   if (redirectOnLogin) {
-    return <Redirect to='/' />
+    return <Redirect to={ state?.from || '/' } />
   }
 
   if (loginLoading) {
