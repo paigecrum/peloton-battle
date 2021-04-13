@@ -20,6 +20,12 @@ const theme = {
   },
 };
 
+const LoadingFallback = () => (
+  <Box align='center'>
+    <Loading />
+  </Box>
+);
+
 const UnauthenticatedRoutes = () => {
   return (
     <Switch>
@@ -46,7 +52,6 @@ const AuthenticatedRoute = ({ children, ...rest }) => {
   );
 };
 
-
 function AppRoutes() {
   const { authState } = useContext(AuthContext);
   if (!authState.userInfo) {
@@ -58,7 +63,7 @@ function AppRoutes() {
   }
 
   return (
-    <React.Suspense fallback={<Loading />}>
+    <React.Suspense fallback={<LoadingFallback />}>
       <Switch>
         <AuthenticatedRoute exact path='/'>
           <Rides />

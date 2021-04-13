@@ -33,7 +33,7 @@ export function checkAuthStatus() {
 export function logout() {
   const endpoint = `/api/logout`;
 
-  return fetch(endpoint)
+  return fetch(endpoint, { method: 'POST' })
     .then((res) => {
       return res.json()
     })

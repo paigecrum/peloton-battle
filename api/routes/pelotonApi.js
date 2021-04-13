@@ -26,9 +26,8 @@ router.get('/checkAuthStatus', (req, res, next) => {
   res.json({ user });
 })
 
-// change to post or delete?
-router.get('/logout', requireAuth, async(req, res, next) => {
-  req.session.destroy(function(err) {
+router.post('/logout', requireAuth, async(req, res, next) => {
+  req.session.destroy((err) => {
     if (err) {
       return res.status(400).json({ message: 'There was a problem logging out.' })
     }
