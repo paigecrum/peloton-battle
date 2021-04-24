@@ -2,13 +2,14 @@ import React, { useContext, useState } from 'react'
 import { Redirect, useLocation } from 'react-router-dom'
 import { Box, Button, Form, FormField, Heading, TextInput } from 'grommet'
 
-import { authorize } from '../utils/api'
 import { ErrorMessage } from './ErrorMessage'
 import Loading from './Loading'
 import { AuthContext } from '../contexts/auth'
+import { ApiContext } from '../contexts/api'
 
 export default function LoginForm() {
-  const authContext = useContext(AuthContext);
+  const { authState, setAuthState } = useContext(AuthContext);
+  const { authorize } = useContext(ApiContext);
   const { state } = useLocation();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -16,28 +17,21 @@ export default function LoginForm() {
   const [loginLoading, setLoginLoading] = useState(false);
   const [redirectOnLogin, setRedirectOnLogin] = useState(false);
 
-  const handleUsernameChange = (e) => {
-    setUsername(e.target.value);
-  }
+  const handleUsernameChange = e => setUsername(e.target.value);
+  const handlePasswordChange = e => setPassword(e.target.value);
 
-  const handlePasswordChange = (e) => {
-    setPassword(e.target.value);
-  }
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-
     setLoginLoading(true);
-    authorize(e.value)
-      .then((data) => {
-        authContext.setAuthState(data);
-        setRedirectOnLogin(true);
-      })
-      .catch((error) => {
-        setLoginLoading(false);
-        console.warn('Error authorizing user: ', error);
-        setError('Peloton authentication failed with provided credentials. Please try again.');
-      })
+    try {
+      const data = await authorize(e.value);
+      setAuthState(data);
+      setRedirectOnLogin(true);
+    } catch (error) {
+      setLoginLoading(false);
+      console.warn('Error authorizing user: ', error);
+      setError('Peloton authentication failed with provided credentials. Please try again.');
+    }
   }
 
   if (redirectOnLogin) {
@@ -54,7 +48,7 @@ export default function LoginForm() {
 
   return (
     <Box align='center' pad='large'>
-      { authContext.authState.isAuthenticated && <Redirect to ='/' />}
+      { authState.isAuthenticated && <Redirect to ='/' />}
       { error && <ErrorMessage>{ error }</ErrorMessage>}
       <Heading level={2} size="xsmall">
         Authenticate to your Peloton account to get started

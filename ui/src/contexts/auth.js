@@ -1,33 +1,37 @@
-import React, { createContext, useEffect, useState } from 'react'
+import React, { createContext, useContext, useEffect, useState } from 'react'
 import { useHistory } from 'react-router-dom';
 
-import { checkAuthStatus, logout as logoutUser } from '../utils/api'
+import { ApiContext } from './api'
 
 const AuthContext = createContext();
 const { Provider } = AuthContext;
 
 const AuthProvider = ({ children }) => {
   const history = useHistory();
+  const { checkAuthStatus, logout: logoutUser } = useContext(ApiContext);
   const [authState, setAuthState] = useState({
     userInfo: null,
     isAuthenticated: false
   });
 
   useEffect(() => {
-      checkAuthStatus()
-        .then(({ user }) => {
-          setAuthState({
-            userInfo: user,
-            isAuthenticated: true
-          })
+    const fetchAndUpdateUser = async () => {
+      try {
+        const { data } = await checkAuthStatus();
+        setAuthState({
+          userInfo: data.user,
+          isAuthenticated: true
         })
-        .catch((err) => {
-          setAuthState({
-            userInfo: {},
-            isAuthenticated: false
-          })
+      } catch (error) {
+        setAuthState({
+          userInfo: {},
+          isAuthenticated: false
         })
-  }, [])
+      }
+    }
+
+    fetchAndUpdateUser();
+  }, [checkAuthStatus])
 
   const setAuthInfo = ({ userInfo }) => {
     setAuthState({
@@ -36,18 +40,17 @@ const AuthProvider = ({ children }) => {
     });
   }
 
-  const logout = () => {
-    logoutUser()
-      .then((data) => {
-        setAuthState({
-          userInfo: {},
-          isAuthenticated: false
-        })
-        history.push('/');
+  const logout = async () => {
+    try {
+      await logoutUser();
+      setAuthState({
+        userInfo: {},
+        isAuthenticated: false
       })
-      .catch((err) => {
-        console.log('Error logging out: ', err);
-      })
+      history.push('/login');
+    } catch (error) {
+      console.log('Error logging out: ', error);
+    }
   }
 
   return (

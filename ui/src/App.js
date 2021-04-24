@@ -3,22 +3,16 @@ import { Redirect, Route, BrowserRouter as Router, Switch } from 'react-router-d
 import { Box, Grommet } from 'grommet'
 
 import GlobalStyles from './GlobalStyles'
+import { theme } from "./theme"
 import Nav from './components/Nav'
 import Loading from './components/Loading'
 import LoginForm from './components/LoginForm'
 import { AuthContext, AuthProvider } from './contexts/auth'
+import { ApiProvider } from './contexts/api'
 
 const Rides = React.lazy(() => import('./components/Rides'))
 const Battle = React.lazy(() => import('./components/Battle'))
 const Results = React.lazy(() => import('./components/Results'))
-
-const theme = {
-  global: {
-    colors: {
-      brand: 'hsl(218,99%,66%)'
-    }
-  },
-};
 
 const LoadingFallback = () => (
   <Box align='center'>
@@ -36,6 +30,7 @@ const UnauthenticatedRoutes = () => {
     </Switch>
   )
 }
+
 const AuthenticatedRoute = ({ children, ...rest }) => {
   const { authState } = useContext(AuthContext);
   return (
@@ -86,15 +81,17 @@ function AppRoutes() {
 function App() {
   return (
     <Router>
-      <AuthProvider>
-        <Grommet css="min-height: 100vh" theme={theme}>
-          <div className="container">
-            <Nav />
-            <AppRoutes />
-          </div>
-          <GlobalStyles />
-        </Grommet>
-      </AuthProvider>
+      <ApiProvider>
+        <AuthProvider>
+          <Grommet css="min-height: 100vh" theme={theme}>
+            <div className="container">
+              <Nav />
+              <AppRoutes />
+            </div>
+            <GlobalStyles />
+          </Grommet>
+        </AuthProvider>
+      </ApiProvider>
     </Router>
   );
 }

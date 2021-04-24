@@ -1,11 +1,11 @@
-import React, { useEffect, useReducer, useRef, useState } from 'react'
+import React, { useContext, useEffect, useReducer, useRef, useState } from 'react'
 import PropTypes from 'prop-types'
 import { Box, Button, Grid, Heading, Nav, Text } from 'grommet'
 
 import { ErrorMessage } from './ErrorMessage'
 import Loading from './Loading'
 import RideCard from './RideCard'
-import { getRides } from '../utils/api'
+import { ApiContext } from '../contexts/api'
 import { rideLengthConversions } from '../utils/helpers'
 
 
@@ -66,31 +66,35 @@ const ridesReducer = (state, action) => {
 }
 
 export default function Rides() {
+  const { getRides } = useContext(ApiContext);
   const [selectedRideLength, setSelectedRideLength] = useState('All');
   const [state, dispatch] = useReducer(ridesReducer, { error: null });
   const fetchedRideLengths = useRef([]);
 
   useEffect(() => {
-    if (fetchedRideLengths.current.includes(selectedRideLength) === false) {
-      fetchedRideLengths.current.push(selectedRideLength)
+    const fetchAndUpdateRides = async () => {
+      if (fetchedRideLengths.current.includes(selectedRideLength) === false) {
+        fetchedRideLengths.current.push(selectedRideLength);
 
-      getRides(rideLengthConversions[selectedRideLength])
-        .then((rides) => {
+        try {
+          const { rides } = await getRides(rideLengthConversions[selectedRideLength]);
           dispatch({
             type: 'success',
             selectedRideLength,
             rides
           })
-        })
-        .catch((error) => {
-          console.warn('Error fetching rides: ', error)
+        } catch (error) {
+          console.warn('Error fetching rides: ', error);
           dispatch({
             type: 'error',
             error: 'There was an error fetching the rides.'
           })
-        })
+        }
+      }
     }
-  }, [fetchedRideLengths, selectedRideLength])
+
+    fetchAndUpdateRides();
+  }, [selectedRideLength, getRides])
 
   const isLoading = () => !state[selectedRideLength] && state.error === null;
 

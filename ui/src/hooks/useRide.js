@@ -1,7 +1,7 @@
-import { useEffect, useReducer } from 'react'
+import { useContext, useEffect, useReducer } from 'react'
 import { useLocation } from 'react-router-dom'
 
-import { getRideMetadata } from '../utils/api'
+import { ApiContext } from '../contexts/api'
 
 const rideReducer = (state, action) => {
   if (action.type === 'success') {
@@ -22,6 +22,7 @@ const rideReducer = (state, action) => {
 }
 
 export default function useRide(rideId) {
+  const { getRideMetadata } = useContext(ApiContext);
   const location = useLocation();
   const [rideState, dispatchRide] = useReducer(
     rideReducer,
@@ -29,20 +30,23 @@ export default function useRide(rideId) {
   );
 
   useEffect(() => {
-    // Conditionally fetch ride if not navigating via ride details page
-    if (!location.state) {
-      getRideMetadata(rideId)
-        .then((ride) => {
+    const fetchAndUpdateRideMetadata = async () => {
+      // Conditionally fetch ride if not navigating via ride details page
+      if (!location.state) {
+        try {
+          const ride = await getRideMetadata(rideId);
           dispatchRide({ type: 'success', ride });
-        })
-        .catch((error) => {
+        } catch (error) {
           console.warn('Error fetching ride: ', error);
           dispatchRide({ type: 'error', error: 'There was an error fetching ride from the ride ID param.' });
-        })
-    } else {
-      dispatchRide({ type: 'success', ride: location.state.ride });
+        }
+      } else {
+        dispatchRide({ type: 'success', ride: location.state.ride });
+      }
     }
-  }, [rideId, location.state])
+
+    fetchAndUpdateRideMetadata();
+  }, [location.state, getRideMetadata, rideId])
 
   return rideState;
 }

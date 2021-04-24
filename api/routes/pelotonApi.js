@@ -17,6 +17,10 @@ const requireAuth = (req, res, next) => {
   next();
 }
 
+router.get('/csrf-token', (req, res) => {
+  res.json({ csrfToken: req.csrfToken() });
+})
+
 router.get('/checkAuthStatus', (req, res, next) => {
   const { user } = req.session;
   if (!user) {

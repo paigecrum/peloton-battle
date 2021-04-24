@@ -5,6 +5,7 @@ const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const cors = require('cors');
 const session = require('express-session');
+const csrf = require('csurf');
 require('dotenv').config();
 
 const pelotonApiRouter = require('./routes/pelotonApi');
@@ -23,17 +24,26 @@ app.use(session({
   cookie: {
     httpOnly: true,
     sameSite: true,
-    secure: process.env.NODE_ENV === 'production' ? true : false,
+    secure: process.env.NODE_ENV === 'production',
     maxAge: parseInt(process.env.SESSION_MAX_AGE)
   }
 }));
 
-app.use(cors());
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+
+const csrfProtection = csrf({
+  cookie: {
+    httpOnly: true,
+    sameSite: true,
+    secure: process.env.NODE_ENV === 'production'
+  }
+})
+
+app.use(csrfProtection);
 
 app.use('/api', pelotonApiRouter);
 

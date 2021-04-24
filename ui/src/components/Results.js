@@ -1,15 +1,15 @@
-import React, { useContext, useEffect, useReducer } from 'react'
+import React, { useCallback, useContext, useEffect, useReducer } from 'react'
 import { useLocation, useParams } from 'react-router-dom'
 import { Box, Grid, Heading } from 'grommet'
 import queryString from 'query-string'
 
+import { ApiContext } from '../contexts/api'
 import { AuthContext } from '../contexts/auth'
 import { ErrorMessage } from './ErrorMessage'
 import Loading from './Loading'
 import RideCard from './RideCard'
 import ResultCard from './ResultCard'
 import useRide from '../hooks/useRide'
-import { battle, getRideOpponents, getUserWorkout } from '../utils/api'
 
 
 const playersReducer = (state, action) => {
@@ -36,74 +36,86 @@ export default function Results() {
   const rideState = useRide(rideId);
   const location = useLocation();
   const { authState } = useContext(AuthContext);
+  const { battle, getRideOpponents, getUserWorkout } = useContext(ApiContext);
   const appUserId = authState.userInfo.pelotonUserId;
   const [playersState, dispatchPlayers] = useReducer(
     playersReducer,
     { winner: null, loser: null, playersError: null, loadingPlayers: true }
   );
 
-  const updatePlayers = (appUser, opponent) => {
-    battle([appUser, opponent])
-      .then((players) => {
-        dispatchPlayers({ type: 'success', winner: players[0], loser: players[1] });
-      })
-      .catch((error) => {
-        console.warn(error);
-        dispatchPlayers({ type: 'error', error: 'There was an error battling your opponent.' });
-      })
-  }
+  const updatePlayers = useCallback(async (appUser, opponent) => {
+    try {
+      const players = await battle([appUser, opponent]);
+      dispatchPlayers({ type: 'success', winner: players[0], loser: players[1] });
+    } catch (error) {
+      console.warn(error);
+      dispatchPlayers({ type: 'error', error: 'There was an error battling your opponent.' });
+    }
+  }, [battle]);
 
-  const getUserInfo = (userId, rideId) => {
-    return getUserWorkout(userId, rideId)
-      .then((data) => {
-        return {
-          userId,
-          workoutId: data
-        }
-      })
-      .catch((error) => {
-        console.warn('Error fetching user: ', error)
-      })
-  }
+  const getUserInfo = useCallback(async (userId, rideId) => {
+    try {
+      const data = await getUserWorkout(userId, rideId);
+      return {
+        userId,
+        workoutId: data
+      }
+    } catch (error) {
+      console.warn('Error fetching user: ', error)
+    }
+  }, [getUserWorkout]);
 
-  const getOpponentInfo = (opponentUsername, rideId) => {
-    // Get map of opponents for rideId, then get specific opponent object from that
-    return getRideOpponents(rideId)
-      .then((opponents) => {
-        return opponents[opponentUsername]
-      })
-      .catch((error) => {
-        console.warn('Error fetching opponents: ', error)
-      })
-  }
+  const getOpponentInfo = useCallback(async(opponentUsername, rideId) => {
+    try {
+      // Get map of opponents for rideId, then get specific opponent object from that
+      const opponents = await getRideOpponents(rideId);
+      return opponents[opponentUsername];
+    } catch (error) {
+      console.warn('Error fetching opponents: ', error);
+    }
+  }, [getRideOpponents]);
 
   useEffect(() => {
-    // Conditionally fetch ride & opponent if not navigating via ride details page
-    if (!location.state) {
-      const { opponent: opponentUsername } = queryString.parse(location.search);
+    const fetchAndUpdateResults = async () => {
+      // Conditionally fetch ride & opponent if not navigating via ride details page
+      if (!location.state) {
+        const { opponent: opponentUsername } = queryString.parse(location.search);
 
-      Promise.all([
-        getUserInfo(appUserId, rideId),
-        getOpponentInfo(opponentUsername, rideId)
-      ]).then(([userObj, opponentObj]) => {
+        const [userObj, opponentObj] = await Promise.all([
+          getUserInfo(appUserId, rideId),
+          getOpponentInfo(opponentUsername, rideId)
+        ]);
+
         updatePlayers(userObj, opponentObj);
-      })
-    } else {
-      getUserInfo(appUserId, rideId)
-        .then((appUser) => {
-          updatePlayers(appUser, location.state.opponent);
-        })
+      } else {
+        const appUser = await getUserInfo(appUserId, rideId);
+        updatePlayers(appUser, location.state.opponent);
+      }
     }
-  }, [appUserId, rideId, location.state, location.search])
+    fetchAndUpdateResults();
+  }, [appUserId, rideId, location.state, location.search, getOpponentInfo, getUserInfo, updatePlayers])
 
+  if (rideState.rideError) {
+    return (
+      <Box align='center'>
+        <ErrorMessage>{ rideState.rideError }</ErrorMessage>
+      </Box>
+    )
+  }
+
+  if (playersState.playersError) {
+    return (
+      <Box align='center'>
+        <ErrorMessage>{ playersState.playersError }</ErrorMessage>
+      </Box>
+    )
+  }
   return (
     <Box margin={{ bottom: 'large' }}>
       <Box align='center'>
         <Heading textAlign='center' level='1' size='small' margin={{ bottom: 'medium' }} color='dark-2'>
           Battle Results
         </Heading>
-        { rideState.rideError && <ErrorMessage>{ rideState.rideError }</ErrorMessage>}
-        { playersState.playersError && <ErrorMessage>{ playersState.playersError }</ErrorMessage>}
       </Box>
       { rideState.loadingRide === true
         ? <Box align='center'>

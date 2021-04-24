@@ -1,12 +1,13 @@
-import React, { useEffect, useReducer } from 'react'
+import React, { useContext, useEffect, useReducer } from 'react'
 import { useParams } from 'react-router-dom'
 import { Box, Grid, Heading } from 'grommet'
 
+import { ErrorMessage } from './ErrorMessage'
 import Loading from './Loading'
 import RideCard from './RideCard'
 import OpponentCard from './OpponentCard'
 import useRide from '../hooks/useRide'
-import { getRideOpponents } from '../utils/api'
+import { ApiContext } from '../contexts/api'
 
 const opponentsReducer = (state, action) => {
   if (action.type === 'success') {
@@ -27,6 +28,7 @@ const opponentsReducer = (state, action) => {
 }
 
 export default function Battle() {
+  const { getRideOpponents } = useContext(ApiContext);
   const { rideId } = useParams();
   const rideState = useRide(rideId);
   const [opponentsState, dispatchOpponents] = useReducer(
@@ -35,25 +37,31 @@ export default function Battle() {
   );
 
   useEffect(() => {
-    getRideOpponents(rideId)
-      .then((opponents) => {
+    const fetchAndUpdateOpponents = async () => {
+      try {
+        const opponents = await getRideOpponents(rideId);
         dispatchOpponents({ type: 'success', opponents });
-      })
-      .catch((error) => {
+      } catch (error) {
         console.warn('Error fetching ride info: ', error)
         dispatchOpponents({ type: 'error', error: 'There was an error fetching your ride info.' });
-      })
-  }, [rideId])
+      }
+    }
+    fetchAndUpdateOpponents();
+  }, [rideId, getRideOpponents])
 
   if (rideState.error) {
     return (
-      <p className='center-text error'>{rideState.error}</p>
+      <Box align='center'>
+        <ErrorMessage>{ rideState.error }</ErrorMessage>
+      </Box>
     )
   }
 
   if (opponentsState.error) {
     return (
-      <p className='center-text error'>{opponentsState.error}</p>
+      <Box align='center'>
+        <ErrorMessage>{opponentsState.error}</ErrorMessage>
+      </Box>
     )
   }
 
