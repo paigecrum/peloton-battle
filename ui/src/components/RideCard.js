@@ -1,7 +1,7 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 import styled from 'styled-components'
-import { Box, Card, CardHeader, CardBody, CardFooter, Heading, Image, Stack, Text } from 'grommet'
+import { Box, Card, CardBody, CardHeader, Image, Stack, Text } from 'grommet'
 import { Calendar, User } from 'grommet-icons'
 import "styled-components/macro"
 
@@ -19,39 +19,50 @@ export default function RideCard({ ride }) {
         state: { ride }
       }}
     >
-      <Card height='medium' width='medium' background='light-1'>
-        <CardHeader justify='center' pad='small' background='light-2'>
-          <Heading margin='none' level='4' size='medium'>
-            {ride.title}
-          </Heading>
-        </CardHeader>
-        <CardBody>
-          <Image
-            fit='cover'
-            src={`${ride.imageUrl}`}
-            alt='Thumbnail from selected ride.'
-          />
-        </CardBody>
-        <CardFooter pad={{horizontal: 'small', vertical: 'small'}} background='light-2' justify='evenly'>
-          <Calendar />
-          <Box direction='column' align='center'>
-            <Text>{formatDate(ride.classStartTimestamp)}</Text>
-          </Box>
-          <Text>{instructorMap[ride.instructorId]}</Text>
-          <Stack anchor='top-right'>
-            <User size='30px' />
-            <Box
-              background='brand'
-              responsive={false}
-              align='center'
-              height='15px'
-              width='15px'
-              round
-            >
-              <Text color='white' size='11px' css='position: relative; top: 1px'>{ride.numFriends}</Text>
+      <Card height='234px' width='418px'>
+        <Stack anchor='bottom-left'>
+          <CardBody height='234px'>
+            <Image
+              fit='cover'
+              src={ride.imageUrl}
+              a11yTitle='Thumbnail from selected ride.'
+            />
+          </CardBody>
+          <CardHeader
+            pad={{ horizontal: 'small', vertical: 'xsmall' }}
+            background='#000000A0'
+            width='418px'
+            justify='between'
+          >
+            <Box>
+              <Text size='16px' weight={600}  margin='none'>
+                {ride.title}
+              </Text>
+              <Text size='small'>{instructorMap[ride.instructorId]}</Text>
+              <Box direction='row' align='center'>
+                <Calendar size='small' />
+                <Text size='xsmall' margin={{ horizontal: 'xsmall'}}>
+                  {formatDate(ride.classStartTimestamp)}
+                </Text>
+              </Box>
             </Box>
-          </Stack>
-        </CardFooter>
+            <Stack anchor='top-right'>
+              <User size='30px' />
+              <Box
+                background='brand'
+                responsive={false}
+                align='center'
+                height='15px'
+                width='15px'
+                round
+              >
+                <Text color='white' size='11px' css='position: relative; top: 1px'>
+                  {ride.numFriends}
+                </Text>
+              </Box>
+            </Stack>
+          </CardHeader>
+        </Stack>
       </Card>
     </StyledLink>
   )

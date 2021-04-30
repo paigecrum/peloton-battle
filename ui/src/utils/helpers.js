@@ -12,7 +12,7 @@ export function formatDate(unixTime) {
   const d = new Date(unixTime * 1000);
   const dateString = d.toLocaleDateString([], { day: 'numeric', month: 'numeric', year: '2-digit' });
   const timeString = d.toLocaleTimeString([], { hour: 'numeric', minute:'2-digit' });
-  
+
   return dateString + ' @ ' + timeString;
 }
 

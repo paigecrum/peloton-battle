@@ -34,8 +34,13 @@ RideLengthNav.propTypes = {
 
 function RidesGrid({ rides }) {
   return (
-    <Box pad='medium'>
-      <Grid gap='medium' rows='medium' justify='center' columns={{ count: 'fit', size: 'medium' }}>
+    <Box pad='large'>
+      <Grid
+        gap={{ row: 'xlarge', column: 'large'}}
+        rows='small'
+        columns={{ count: 'fit', size: 'medium' }}
+        justify='center'
+      >
         { rides.map((ride) => (
           <RideCard key={ride.id} ride={ride} />
         ))}
