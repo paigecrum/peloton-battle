@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useEffect, useReducer } from 'react'
+import React, { useContext, useEffect, useReducer } from 'react'
 import { useLocation, useParams } from 'react-router-dom'
 import { Box, Grid, Heading } from 'grommet'
 import queryString from 'query-string'
@@ -43,57 +43,48 @@ export default function Results() {
     { winner: null, loser: null, playersError: null, loadingPlayers: true }
   );
 
-  const updatePlayers = useCallback(async (appUser, opponent) => {
-    try {
-      const players = await battle([appUser, opponent]);
-      dispatchPlayers({ type: 'success', winner: players[0], loser: players[1] });
-    } catch (error) {
-      console.warn(error);
-      dispatchPlayers({ type: 'error', error: 'There was an error battling your opponent.' });
+  const getUserInfo = async (userId, rideId) => {
+    const data = await getUserWorkout(userId, rideId);
+    return {
+      userId,
+      workoutId: data
     }
-  }, [battle]);
+  };
 
-  const getUserInfo = useCallback(async (userId, rideId) => {
-    try {
-      const data = await getUserWorkout(userId, rideId);
-      return {
-        userId,
-        workoutId: data
-      }
-    } catch (error) {
-      console.warn('Error fetching user: ', error)
-    }
-  }, [getUserWorkout]);
-
-  const getOpponentInfo = useCallback(async(opponentUsername, rideId) => {
-    try {
+  const getOpponentInfo = async(opponentUsername, rideId) => {
       // Get map of opponents for rideId, then get specific opponent object from that
       const opponents = await getRideOpponents(rideId);
       return opponents[opponentUsername];
-    } catch (error) {
-      console.warn('Error fetching opponents: ', error);
-    }
-  }, [getRideOpponents]);
+  };
 
   useEffect(() => {
     const fetchAndUpdateResults = async () => {
       // Conditionally fetch ride & opponent if not navigating via ride details page
-      if (!location.state) {
-        const { opponent: opponentUsername } = queryString.parse(location.search);
+      try {
+        if (!location.state) {
+          const { opponent: opponentUsername } = queryString.parse(location.search);
 
-        const [userObj, opponentObj] = await Promise.all([
-          getUserInfo(appUserId, rideId),
-          getOpponentInfo(opponentUsername, rideId)
-        ]);
+          const [userObj, opponentObj] = await Promise.all([
+            getUserInfo(appUserId, rideId),
+            getOpponentInfo(opponentUsername, rideId)
+          ]);
 
-        updatePlayers(userObj, opponentObj);
-      } else {
-        const appUser = await getUserInfo(appUserId, rideId);
-        updatePlayers(appUser, location.state.opponent);
+          const players = await battle([userObj, opponentObj]);
+          dispatchPlayers({ type: 'success', winner: players[0], loser: players[1] });
+        } else {
+          const appUser = await getUserInfo(appUserId, rideId);
+          const players = await battle([appUser, location.state.opponent]);
+          dispatchPlayers({ type: 'success', winner: players[0], loser: players[1] });
+        }
+      } catch (error) {
+        console.warn(error);
+        dispatchPlayers({ type: 'error', error: 'There was an error battling your opponent.' });
       }
     }
     fetchAndUpdateResults();
-  }, [appUserId, rideId, location.state, location.search, getOpponentInfo, getUserInfo, updatePlayers])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
 
   if (rideState.rideError) {
     return (

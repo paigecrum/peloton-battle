@@ -17,8 +17,8 @@ export default function OpponentCard({ opponent, ride }) {
         search: `?opponent=${opponent.username}`,
         state: { opponent, ride }
       }}
-    >    
-      <Card height='small' width='small' background='light-1'>
+    >
+      <Card height={{ max: 'small' }} width={{ max: 'small' }} background='light-1'>
         <CardHeader justify='center' pad='small' background='light-2'>
           <Heading margin='none' level='4' size='medium'>
             {opponent.username}

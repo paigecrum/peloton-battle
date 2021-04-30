@@ -83,7 +83,7 @@ function App() {
     <Router>
       <ApiProvider>
         <AuthProvider>
-          <Grommet css="min-height: 100vh" theme={theme}>
+          <Grommet theme={theme}>
             <div className="container">
               <Nav />
               <AppRoutes />

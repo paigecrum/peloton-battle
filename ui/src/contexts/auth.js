@@ -17,9 +17,9 @@ const AuthProvider = ({ children }) => {
   useEffect(() => {
     const fetchAndUpdateUser = async () => {
       try {
-        const { data } = await checkAuthStatus();
+        const { user } = await checkAuthStatus();
         setAuthState({
-          userInfo: data.user,
+          userInfo: user,
           isAuthenticated: true
         })
       } catch (error) {
@@ -36,7 +36,7 @@ const AuthProvider = ({ children }) => {
   const setAuthInfo = ({ userInfo }) => {
     setAuthState({
       userInfo,
-      isAuthenticated: userInfo && userInfo.pelotonUserId ? true : false
+      isAuthenticated: Boolean(userInfo && userInfo.pelotonUserId)
     });
   }
 

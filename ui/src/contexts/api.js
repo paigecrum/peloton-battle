@@ -1,13 +1,17 @@
-import React, { createContext, useEffect } from 'react';
+import React, { createContext, useEffect, useMemo } from 'react';
 import axios from 'axios';
 
 const ApiContext = createContext();
 const { Provider } = ApiContext;
 
 const ApiProvider = ({ children }) => {
-  const client = axios.create({
-    baseURL: process.env.REACT_APP_API_URL
-  });
+  const client = useMemo(() => {
+    return (
+      axios.create({
+        baseURL: process.env.REACT_APP_API_URL
+      })
+    )
+  }, []);
 
   useEffect(() => {
     const getCsrfToken = async () => {

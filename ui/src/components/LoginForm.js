@@ -17,8 +17,8 @@ export default function LoginForm() {
   const [loginLoading, setLoginLoading] = useState(false);
   const [redirectOnLogin, setRedirectOnLogin] = useState(false);
 
-  const handleUsernameChange = e => setUsername(e.target.value);
-  const handlePasswordChange = e => setPassword(e.target.value);
+  const handleUsernameChange = (e) => setUsername(e.target.value);
+  const handlePasswordChange = (e) => setPassword(e.target.value);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -32,10 +32,10 @@ export default function LoginForm() {
       console.warn('Error authorizing user: ', error);
       setError('Peloton authentication failed with provided credentials. Please try again.');
     }
-  }
+  };
 
   if (redirectOnLogin) {
-    return <Redirect to={ state?.from || '/' } />
+    return <Redirect to={state?.from || '/'} />;
   }
 
   if (loginLoading) {
@@ -43,14 +43,14 @@ export default function LoginForm() {
       <Box align='center'>
         <Loading text='Authenticating to Peloton' />
       </Box>
-    )
+    );
   }
 
   return (
     <Box align='center' pad='large'>
-      { authState.isAuthenticated && <Redirect to ='/' />}
-      { error && <ErrorMessage>{ error }</ErrorMessage>}
-      <Heading level={2} size="xsmall">
+      {authState.isAuthenticated && <Redirect to='/' />}
+      {error && <ErrorMessage>{error}</ErrorMessage>}
+      <Heading level={2} size='xsmall'>
         Authenticate to your Peloton account to get started
       </Heading>
       <Box width='medium' pad='medium' background='#F7F7F7'>
@@ -73,14 +73,9 @@ export default function LoginForm() {
               value={password}
             />
           </FormField>
-          <Button
-            type='submit'
-            primary
-            label='Submit'
-            disabled={!username || !password}
-          />
+          <Button type='submit' primary label='Submit' disabled={!username || !password} />
         </Form>
       </Box>
     </Box>
-  )
+  );
 }

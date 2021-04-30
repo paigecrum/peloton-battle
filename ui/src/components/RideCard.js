@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import styled from 'styled-components'
 import { Box, Card, CardHeader, CardBody, CardFooter, Heading, Image, Stack, Text } from 'grommet'
 import { Calendar, User } from 'grommet-icons'
+import "styled-components/macro"
 
 import { instructorMap, formatDate } from '../utils/helpers'
 
@@ -31,27 +32,23 @@ export default function RideCard({ ride }) {
             alt='Thumbnail from selected ride.'
           />
         </CardBody>
-        <CardFooter pad={{horizontal: 'small'}} background='light-2'>
-          <Box direction='row'>
-            <Box margin={{ vertical: 'medium' }}><Calendar /></Box>
-            <Text
-              textAlign='center'
-              margin={{ vertical: 'small', horizontal: 'small' }}
-            >
-              {formatDate(ride.classStartTimestamp)}
-            </Text>
+        <CardFooter pad={{horizontal: 'small', vertical: 'small'}} background='light-2' justify='evenly'>
+          <Calendar />
+          <Box direction='column' align='center'>
+            <Text>{formatDate(ride.classStartTimestamp)}</Text>
           </Box>
-          <Text textAlign='center'>
-            {instructorMap[ride.instructorId]}
-          </Text>
+          <Text>{instructorMap[ride.instructorId]}</Text>
           <Stack anchor='top-right'>
-            <User size='large' />
+            <User size='30px' />
             <Box
               background='brand'
-              pad={{ horizontal: 'xsmall' }}
+              responsive={false}
+              align='center'
+              height='15px'
+              width='15px'
               round
             >
-              <Text>{ride.numFriends}</Text>
+              <Text color='white' size='11px' css='position: relative; top: 1px'>{ride.numFriends}</Text>
             </Box>
           </Stack>
         </CardFooter>

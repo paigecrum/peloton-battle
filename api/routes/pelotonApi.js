@@ -47,23 +47,32 @@ router.post('/authorize', async(req, res, next) => {
     }
 
     // Auth to Peloton API with login creds
-    const resp = await fetch(BASE_URL + '/auth/login', {
+    const authResp = await fetch(BASE_URL + '/auth/login', {
       method: 'POST',
       body: JSON.stringify(payload),
       headers: BASE_HEADERS
     });
-    const respJSON = await resp.json();
+    const authRespJSON = await authResp.json();
 
-    if (resp.ok) {
-      req.session.pelotonSessionId = respJSON.session_id;
-      req.session.user = {
-        pelotonUserId: respJSON.user_id,
-        pelotonUsername: respJSON.user_data.username,
-        pelotonAvatarUrl: respJSON.user_data.image_url,
-      }
+    if (authResp.ok) {
+      req.session.pelotonSessionId = authRespJSON.session_id;
+
       // Set cookie to send in subsequent requests
-      const pelotonHeaders = resp.headers.raw()['set-cookie'];
+      const pelotonHeaders = authResp.headers.raw()['set-cookie'];
       req.session.pelotonSessionCookie = pelotonHeaders.join(';');
+
+      // Get username and avatar URL from user endpoint
+      const headersWithCookies = Object.assign({}, BASE_HEADERS, { 'cookie' : req.session.pelotonSessionCookie });
+      const userResponse = await fetch(BASE_URL + `/api/user/${authRespJSON.user_id}`, {
+        headers: headersWithCookies
+      });
+      const userResponseJSON = await userResponse.json();
+
+      req.session.user = {
+        pelotonUserId: authRespJSON.user_id,
+        pelotonUsername: userResponseJSON.username,
+        pelotonAvatarUrl: userResponseJSON.image_url
+      }
 
       res.json({
         message: 'Authentication successful',
