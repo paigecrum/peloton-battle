@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 import styled from 'styled-components'
 import { Box, Card, CardBody, CardHeader, Image, Stack, Text } from 'grommet'
@@ -12,6 +12,8 @@ const StyledLink = styled(Link)`
 `;
 
 export default function RideCard({ ride }) {
+  const [hovering, setHovering] = useState(false);
+
   return (
     <StyledLink
       to={{
@@ -19,7 +21,13 @@ export default function RideCard({ ride }) {
         state: { ride }
       }}
     >
-      <Card height='234px' width='418px'>
+      <Card
+        height='234px'
+        width='418px'
+        animation={hovering ? {type: 'zoomIn'/*, delay: 1000*/} : null}
+        onMouseOver={() => setHovering(true)}
+        onMouseOut={() => setHovering(false)}
+      >
         <Stack anchor='bottom-left'>
           <CardBody height='234px'>
             <Image

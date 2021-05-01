@@ -9,14 +9,14 @@ export default function Nav() {
   const { authState, logout } = useContext(AuthContext);
 
   return (
-    <Header background='light-2'>
+    <Header>
       <NavLink to='/' exact className='nav-link'>
         <Button icon={<Home />} hoverIndicator />
       </NavLink>
       <Box direction='row'>
         { authState.userInfo && authState.userInfo.pelotonUsername &&
           <>
-            <Text size='small' alignSelf='center'>{authState.userInfo.pelotonUsername}</Text>
+            <Text size='small' alignSelf='center' margin='xsmall'>{authState.userInfo.pelotonUsername}</Text>
             <Menu
               label={<Avatar src={authState.userInfo.pelotonAvatarUrl} size='small' />}
               items={[{
