@@ -73,7 +73,16 @@ export default function LoginForm() {
               value={password}
             />
           </FormField>
-          <Button type='submit' primary label='Submit' disabled={!username || !password} />
+          <Box>
+
+          <Button
+            type='submit'
+            primary
+            label='Submit'
+            alignSelf='center'
+            disabled={!username || !password}
+          />
+          </Box>
         </Form>
       </Box>
     </Box>
