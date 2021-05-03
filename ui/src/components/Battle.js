@@ -70,29 +70,29 @@ export default function Battle() {
   return (
     <Box margin='large'>
       {rideState.loadingRide === true ? (
-        <Box align='center'>
+        <Box align='center' margin={{ bottom: 'small' }}>
           <Loading text='Loading Ride' />
         </Box>
       ) : (
-        <Box align='center'>
+        <Box align='center' margin={{ bottom: 'small' }}>
           <RideCard ride={rideState.ride} />
         </Box>
       )}
       {opponentsState.loadingOpponents === true ? (
         rideState.loadingRide === false && (
-          <Box align='center'>
+          <Box align='center' margin={{ bottom: 'small' }}>
             <Loading text='Loading Opponents' />
           </Box>
         )
       ) : (
         <React.Fragment>
           <Box align='center'>
-            <Heading textAlign='center' margin={{ bottom: 'medium' }} level='3' size='small' color='dark-2'>
+            <Heading textAlign='center' margin='medium' level='1' size='22px'>
               Pick one of your {Object.keys(opponentsState.opponents).length} friends who has taken this ride
               to battle.
             </Heading>
           </Box>
-          <Grid gap='medium' rows='small' justify='center' columns={{ count: 'fit', size: 'small' }}>
+          <Grid gap='medium' margin='small' rows='small' justify='center' columns={{ count: 'fit', size: 'small' }}>
             {Object.keys(opponentsState.opponents).map((opponentUsername) => {
               return (
                 <OpponentCard

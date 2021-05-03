@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useReducer } from 'react'
 import { useLocation, useParams } from 'react-router-dom'
-import { Box, Grid, Heading } from 'grommet'
+import { Box, Heading } from 'grommet'
 import queryString from 'query-string'
 
 import { ApiContext } from '../contexts/api'
@@ -104,7 +104,7 @@ export default function Results() {
   return (
     <Box margin={{ bottom: 'large' }}>
       <Box align='center'>
-        <Heading textAlign='center' level='1' size='small' margin={{ bottom: 'medium' }} color='dark-2'>
+        <Heading textAlign='center' level='1' size='small' margin={{ bottom: 'medium' }}>
           Battle Results
         </Heading>
       </Box>
@@ -121,23 +121,15 @@ export default function Results() {
           <Box align='center'>
             <Loading text='Battling' />
           </Box>
-        : <Box pad={{ top: 'large'}}>
-            <Grid
-              gap='medium'
-              rows='medium'
-              justify='center'
-              columns={{ count: 'fit', size: 'medium' }}
-              margin={{ left: 'xlarge', right: 'xlarge' }}
-            >
-              <ResultCard
-                player={playersState.winner}
-                outcome={playersState.winner.totalOutput === playersState.loser.totalOutput ? 'Tie' : 'Winner'}
-              />
-              <ResultCard
-                player={playersState.loser}
-                outcome={playersState.winner.totalOutput === playersState.loser.totalOutput ? 'Tie' : 'Loser'}
-              />
-            </Grid>
+        : <Box pad={{ top: 'large' }} direction='row' justify='center'>
+            <ResultCard
+              player={playersState.winner}
+              outcome={playersState.winner.totalOutput === playersState.loser.totalOutput ? 'Tie' : 'Winner'}
+            />
+            <ResultCard
+              player={playersState.loser}
+              outcome={playersState.winner.totalOutput === playersState.loser.totalOutput ? 'Tie' : 'Loser'}
+            />
           </Box>
       }
     </Box>

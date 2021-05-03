@@ -14,7 +14,7 @@ function RideLengthNav({selected, onUpdateRideLength}) {
 
   return (
     <Box align='center' pad='medium'>
-      <Nav direction='row' align='center' pad='medium'>
+      <Nav direction='row' align='center'>
         { rideLengths.map((rideLength) => (
           <Button
             key={rideLength}
@@ -34,7 +34,7 @@ RideLengthNav.propTypes = {
 
 function RidesGrid({ rides }) {
   return (
-    <Box pad='large'>
+    <Box pad={{ horizontal: 'large', vertical: 'medium'}}>
       <Grid
         gap={{ row: 'xlarge', column: 'large'}}
         rows='small'
@@ -116,7 +116,7 @@ export default function Rides() {
       { state[selectedRideLength] && state[selectedRideLength].length > 0 &&
         <>
           <Box align='center'>
-            <Heading margin={{ bottom: 'medium' }} level='3' size='small' color='dark-2'>
+            <Heading level='1' size='22px'>
               Select a ride you've taken to battle a friend.
             </Heading>
           </Box>
@@ -125,7 +125,7 @@ export default function Rides() {
       }
       { !isLoading() && state[selectedRideLength] && state[selectedRideLength].length === 0 &&
         <Box align='center'>
-          <Heading margin={{ bottom: 'medium' }} level='3' size='small' color='dark-2'>
+          <Heading level='1' size='22px'>
             No rides to display.
           </Heading>
           <Text>Maybe you should try a {selectedRideLength} ride. 😉</Text>
