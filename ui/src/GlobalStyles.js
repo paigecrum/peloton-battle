@@ -25,12 +25,12 @@ const GlobalStyles = createGlobalStyle`
 
   ::-moz-selection {
     color: white;
-    background: hsl(218,99%,66%);
+    background: hsl(208,100%,50%);
   }
 
   ::selection {
     color: white;
-    background: hsl(218,99%,66%);
+    background: hsl(208,100%,50%);
   }
 
 `;
