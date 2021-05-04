@@ -12,25 +12,6 @@ import ResultCard from './ResultCard'
 import useRide from '../hooks/useRide'
 
 
-const playersReducer = (state, action) => {
-  if (action.type === 'success') {
-    return {
-      winner: action.winner,
-      loser: action.loser,
-      playersError: null,
-      loadingPlayers: false
-    }
-  } else if (action.type === 'error') {
-    return {
-      ...state,
-      playersError: action.error,
-      loadingPlayers: false
-    }
-  } else {
-    throw new Error(`This action type isn't supported.`)
-  }
-}
-
 export default function Results() {
   const { rideId } = useParams();
   const rideState = useRide(rideId);
@@ -134,4 +115,23 @@ export default function Results() {
       }
     </Box>
   )
+}
+
+const playersReducer = (state, action) => {
+  if (action.type === 'success') {
+    return {
+      winner: action.winner,
+      loser: action.loser,
+      playersError: null,
+      loadingPlayers: false
+    }
+  } else if (action.type === 'error') {
+    return {
+      ...state,
+      playersError: action.error,
+      loadingPlayers: false
+    }
+  } else {
+    throw new Error(`This action type isn't supported.`)
+  }
 }

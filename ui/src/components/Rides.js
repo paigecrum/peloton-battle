@@ -9,67 +9,6 @@ import { ApiContext } from '../contexts/api'
 import { rideLengthConversions } from '../utils/helpers'
 
 
-function RideLengthNav({selected, onUpdateRideLength}) {
-  const rideLengths = ['All', '15 min', '20 min', '30 min', '45 min', '60 min'];
-
-  return (
-    <Box align='center' pad='medium'>
-      <Nav direction='row' align='center'>
-        { rideLengths.map((rideLength) => (
-          <Button
-            key={rideLength}
-            label={rideLength}
-            onClick={() => onUpdateRideLength(rideLength)}
-          />
-        ))}
-      </Nav>
-    </Box>
-  )
-}
-
-RideLengthNav.propTypes = {
-  selected: PropTypes.string.isRequired,
-  onUpdateRideLength: PropTypes.func.isRequired
-}
-
-function RidesGrid({ rides }) {
-  return (
-    <Box pad={{ horizontal: 'large', vertical: 'medium'}}>
-      <Grid
-        gap={{ row: 'xlarge', column: 'large'}}
-        rows='small'
-        columns={{ count: 'fit', size: 'medium' }}
-        justify='center'
-      >
-        { rides.map((ride) => (
-          <RideCard key={ride.id} ride={ride} />
-        ))}
-      </Grid>
-    </Box>
-  )
-}
-
-RidesGrid.propTypes = {
-  rides: PropTypes.array.isRequired
-}
-
-const ridesReducer = (state, action) => {
-  if (action.type === 'success') {
-    return {
-      ...state,
-      [action.selectedRideLength]: action.rides,
-      error: null
-    }
-  } else if (action.type === 'error') {
-    return {
-      ...state,
-      error: action.error
-    }
-  } else {
-    throw new Error(`This action type isn't supported.`)
-  }
-}
-
 export default function Rides() {
   const { getRides } = useContext(ApiContext);
   const [selectedRideLength, setSelectedRideLength] = useState('All');
@@ -133,4 +72,65 @@ export default function Rides() {
       }
     </>
   )
+}
+
+const ridesReducer = (state, action) => {
+  if (action.type === 'success') {
+    return {
+      ...state,
+      [action.selectedRideLength]: action.rides,
+      error: null
+    }
+  } else if (action.type === 'error') {
+    return {
+      ...state,
+      error: action.error
+    }
+  } else {
+    throw new Error(`This action type isn't supported.`)
+  }
+}
+
+function RideLengthNav({selected, onUpdateRideLength}) {
+  const rideLengths = ['All', '15 min', '20 min', '30 min', '45 min', '60 min'];
+
+  return (
+    <Box align='center' pad='medium'>
+      <Nav direction='row' align='center'>
+        { rideLengths.map((rideLength) => (
+          <Button
+            key={rideLength}
+            label={rideLength}
+            onClick={() => onUpdateRideLength(rideLength)}
+          />
+        ))}
+      </Nav>
+    </Box>
+  )
+}
+
+RideLengthNav.propTypes = {
+  selected: PropTypes.string.isRequired,
+  onUpdateRideLength: PropTypes.func.isRequired
+}
+
+function RidesGrid({ rides }) {
+  return (
+    <Box pad={{ horizontal: 'large', vertical: 'medium'}}>
+      <Grid
+        gap={{ row: 'xlarge', column: 'large'}}
+        rows='small'
+        columns={{ count: 'fit', size: 'medium' }}
+        justify='center'
+      >
+        { rides.map((ride) => (
+          <RideCard key={ride.id} ride={ride} />
+        ))}
+      </Grid>
+    </Box>
+  )
+}
+
+RidesGrid.propTypes = {
+  rides: PropTypes.array.isRequired
 }
