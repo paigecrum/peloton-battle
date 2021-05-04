@@ -102,7 +102,7 @@ export default function Results() {
     )
   }
   return (
-    <Box margin={{ bottom: 'large' }}>
+    <Box>
       <Box align='center'>
         <Heading textAlign='center' level='1' size='small' margin={{ bottom: 'medium' }}>
           Battle Results
@@ -121,7 +121,7 @@ export default function Results() {
           <Box align='center'>
             <Loading text='Battling' />
           </Box>
-        : <Box pad={{ top: 'large' }} direction='row' justify='center'>
+        : <Box direction='row' justify='center' pad={{ top: '48px' }}>
             <ResultCard
               player={playersState.winner}
               outcome={playersState.winner.totalOutput === playersState.loser.totalOutput ? 'Tie' : 'Winner'}
