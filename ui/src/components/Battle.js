@@ -9,24 +9,6 @@ import OpponentCard from './OpponentCard'
 import useRide from '../hooks/useRide'
 import { ApiContext } from '../contexts/api'
 
-const opponentsReducer = (state, action) => {
-  if (action.type === 'success') {
-    return {
-      opponents: action.opponents,
-      opponentsError: null,
-      loadingOpponents: false
-    }
-  } else if (action.type === 'error') {
-    return {
-      ...state,
-      opponentsError: action.error,
-      loadingOpponents: false
-    }
-  } else {
-    throw new Error(`This action type isn't supported.`);
-  }
-};
-
 export default function Battle() {
   const { getRideOpponents } = useContext(ApiContext);
   const { rideId } = useParams();
@@ -108,3 +90,21 @@ export default function Battle() {
     </Box>
   );
 }
+
+const opponentsReducer = (state, action) => {
+  if (action.type === 'success') {
+    return {
+      opponents: action.opponents,
+      opponentsError: null,
+      loadingOpponents: false
+    }
+  } else if (action.type === 'error') {
+    return {
+      ...state,
+      opponentsError: action.error,
+      loadingOpponents: false
+    }
+  } else {
+    throw new Error(`This action type isn't supported.`);
+  }
+};
