@@ -14,6 +14,9 @@ export const theme = deepMerge(grommet, {
       border: {
         color: 'hsl(208,100%,50%)'
       }
+    },
+    font: {
+      family: 'Rubik'
     }
   },
   menu: {

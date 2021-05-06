@@ -105,11 +105,11 @@ export default function Results() {
         : <Box direction='row' justify='center' pad={{ top: '48px' }}>
             <ResultCard
               player={playersState.winner}
-              outcome={playersState.winner.totalOutput === playersState.loser.totalOutput ? 'Tie' : 'Winner'}
+              outcome={playersState.winner.totalOutput === playersState.loser.totalOutput ? 'TIE' : 'WINNER'}
             />
             <ResultCard
               player={playersState.loser}
-              outcome={playersState.winner.totalOutput === playersState.loser.totalOutput ? 'Tie' : 'Loser'}
+              outcome={playersState.winner.totalOutput === playersState.loser.totalOutput ? 'TIE' : 'LOSER'}
             />
           </Box>
       }
