@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from 'react'
+import React, { createContext, useContext, useEffect, useMemo, useState } from 'react'
 import { useHistory } from 'react-router-dom';
 
 import { ApiContext } from './api'
@@ -8,6 +8,7 @@ const { Provider } = AuthContext;
 
 const AuthProvider = ({ children }) => {
   const history = useHistory();
+  const logoutChannel = useMemo(() => new BroadcastChannel('logout'), []);
   const { checkAuthStatus, logout: logoutUser } = useContext(ApiContext);
   const [authState, setAuthState] = useState({
     userInfo: null,
@@ -33,6 +34,19 @@ const AuthProvider = ({ children }) => {
     fetchAndUpdateUser();
   }, [checkAuthStatus])
 
+  useEffect(() => {
+    logoutChannel.onmessage = message => {
+      if (message.data === 'logOutAllTabs') {
+        setAuthState({
+          userInfo: {},
+          isAuthenticated: false
+        })
+      }
+    }
+
+    return logoutChannel.close;
+  }, [logoutChannel]);
+
   const setAuthInfo = ({ userInfo }) => {
     setAuthState({
       userInfo,
@@ -47,6 +61,7 @@ const AuthProvider = ({ children }) => {
         userInfo: {},
         isAuthenticated: false
       })
+      logoutChannel.postMessage('logOutAllTabs');
       history.push('/login');
     } catch (error) {
       console.log('Error logging out: ', error);
