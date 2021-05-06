@@ -1,10 +1,16 @@
 {
-  "name": "api",
-  "version": "0.0.0",
+  "name": "peloton-battle-app",
+  "version": "1.0.0",
+  "description": "Peloton Battle App",
+  "engines": {
+    "node": "15.x"
+  },
   "private": true,
   "scripts": {
-    "start": "node ./bin/www",
-    "devStart": "nodemon ./bin/www"
+    "start": "node ./api/index.js",
+    "start:dev": "nodemon ./api/index.js",
+    "start:client": "cd ./ui && npm start",
+    "heroku-postbuild": "cd ./ui && npm install && npm run build && cp -r ./build ../api/public"
   },
   "dependencies": {
     "cookie-parser": "^1.4.5",

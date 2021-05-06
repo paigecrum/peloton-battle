@@ -3,7 +3,6 @@ const express = require('express');
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
-const cors = require('cors');
 const session = require('express-session');
 const csrf = require('csurf');
 require('dotenv').config();
@@ -12,10 +11,7 @@ const pelotonApiRouter = require('./routes/pelotonApi');
 
 const app = express();
 
-// view engine setup
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'jade');
-
+app.set('trust proxy', 1);
 app.use(session({
   secret: process.env.SESSION_SECRET,
   saveUninitialized: false,
@@ -47,6 +43,10 @@ app.use(csrfProtection);
 
 app.use('/api', pelotonApiRouter);
 
+app.get('*', (req, res) => {
+   res.sendFile(path.join(__dirname, 'public/index.html'));
+});
+
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   next(createError(404));
@@ -60,7 +60,7 @@ app.use(function(err, req, res, next) {
 
   // render the error page
   res.status(err.status || 500);
-  res.render('error');
+  res.json({});
 });
 
 module.exports = app;
