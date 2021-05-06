@@ -50,10 +50,10 @@ export default function LoginForm() {
     <Box align='center' pad='large'>
       {authState.isAuthenticated && <Redirect to='/' />}
       {error && <ErrorMessage>{error}</ErrorMessage>}
-      <Heading level='1' size='24px'>
+      <Heading level='1' size='24px' textAlign='center'>
         Authenticate to your Peloton account to get started
       </Heading>
-      <Box width='medium' pad='medium' background='#F7F7F7'>
+      <Box width='medium' margin='small' pad='medium' background='#F7F7F7'>
         <Form onSubmit={handleSubmit}>
           <FormField name='username' htmlFor='text-input-username' label='Username'>
             <TextInput
