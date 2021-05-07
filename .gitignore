@@ -10,7 +10,7 @@ node_modules
 
 # production
 *build
-api/public
+server/public
 
 # misc
 .DS_Store

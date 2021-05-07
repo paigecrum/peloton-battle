@@ -7,11 +7,11 @@
   },
   "private": true,
   "scripts": {
-    "start": "node ./api/index.js",
+    "start": "node ./server/index.js",
     "dev": "concurrently \"npm:start:server\" \"npm:start:client\"",
-    "start:server": "nodemon ./api/index.js",
+    "start:server": "nodemon ./server/index.js",
     "start:client": "cd ./ui && npm run dev",
-    "heroku-postbuild": "cd ./ui && npm install && npm run build && cp -r ./build ../api/public"
+    "heroku-postbuild": "cd ./ui && npm install && npm run build && cp -r ./build ../server/public"
   },
   "dependencies": {
     "concurrently": "^6.0.2",
