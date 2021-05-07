@@ -10,8 +10,8 @@
     "start": "node ./server/index.js",
     "dev": "concurrently \"npm:start:server\" \"npm:start:client\"",
     "start:server": "nodemon ./server/index.js",
-    "start:client": "cd ./ui && npm run dev",
-    "heroku-postbuild": "cd ./ui && npm install && npm run build && cp -r ./build ../server/public"
+    "start:client": "cd ./client && npm run dev",
+    "heroku-postbuild": "cd ./client && npm install && npm run build && cp -r ./build ../server/public"
   },
   "dependencies": {
     "concurrently": "^6.0.2",

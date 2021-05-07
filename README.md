@@ -10,11 +10,11 @@ This is a React/Express App that authenticates you to the Peloton API using your
 
 To develop locally, please see the configuration section below.
 
-Install dependencies in the root and `ui` directories.
+Install dependencies in the root and `client` directories.
 ```
 cd <app root>
 npm install
-cd ui
+cd client
 npm install
 ```
 
