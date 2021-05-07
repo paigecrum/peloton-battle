@@ -8,11 +8,21 @@ This is a React/Express App that authenticates you to the Peloton API using your
 
 ## Development
 
-Pull the repo and run `npm install` to install the dependencies. Please note the below configuration files needed to run the app.
+To develop locally, please see the configuration section below.
 
-To run the local dev server:
-- For the Express app, cd into `/api` and run `npm run devStart`
-- For the React app, cd into `/ui` and run `npm start`
+Install dependencies in the root and `ui` directories.
+```
+cd <app root>
+npm install
+cd ui
+npm install
+```
+
+To run the app:
+```
+cd <app root>
+npm run dev
+```
 
 Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
 
@@ -20,15 +30,11 @@ The page will reload if you make edits.
 
 ### Configuration
 
-You will need the following config files in place to run the app.
+You will need the following config file in place to run the app. There is a sample in `.env.example`.
 
-For the React app (`/ui`), create a `.env` file:
-```
-REACT_APP_API_URL='/api'
-```
 
-For the Express app (`/api`), create a `.env` file:
+Create a `.env` file, replacing `SESSION_SECRET` with your desired secret string (any random string).
 ```
-SESSION_SECRET='yourDesiredSecret'
+SESSION_SECRET=<YOUR_DESIRED_SECRET>
 SESSION_MAX_AGE=1800000
 ```

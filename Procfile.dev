@@ -1,2 +1,0 @@
-server: PORT=9000 npm run start:dev
-web: PORT=3000 npm run start:client
