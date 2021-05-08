@@ -7,6 +7,7 @@
     "@testing-library/react": "^11.2.5",
     "@testing-library/user-event": "^12.8.3",
     "axios": "^0.21.1",
+    "broadcast-channel": "^3.5.3",
     "grommet": "^2.17.0",
     "grommet-icons": "^4.5.0",
     "prop-types": "^15.7.2",

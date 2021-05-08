@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from 'react'
 import { useHistory } from 'react-router-dom';
+import { BroadcastChannel } from 'broadcast-channel';
 
 import { ApiContext } from './api'
 
@@ -36,7 +37,7 @@ const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     logoutChannel.onmessage = message => {
-      if (message.data === 'logOutAllTabs') {
+      if (message === 'logOutAllTabs') {
         setAuthState({
           userInfo: {},
           isAuthenticated: false
