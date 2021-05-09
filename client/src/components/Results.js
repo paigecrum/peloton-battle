@@ -83,7 +83,7 @@ export default function Results() {
     )
   }
   return (
-    <Box>
+    <Box margin={{ horizontal: 'large' }}>
       <Box align='center'>
         <Heading textAlign='center' level='1' size='small' margin={{ bottom: 'medium' }}>
           Battle Results

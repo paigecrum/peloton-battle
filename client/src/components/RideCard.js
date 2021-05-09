@@ -63,23 +63,25 @@ export default function RideCard({ ride }) {
             </Text>
           </Box>
         </Box>
-        <Box alignSelf='end'>
-          <Stack anchor='top-right'>
-            <User size='30px' />
-            <Box
-              background='brand'
-              responsive={false}
-              align='center'
-              height='15px'
-              width='15px'
-              round
-            >
-              <Text color='white' size='11px' css='position: relative; top: 1px'>
-                {ride.numFriends}
-              </Text>
-            </Box>
-          </Stack>
-        </Box>
+        { ride.numFriends > 0 &&
+          <Box alignSelf='end'>
+            <Stack anchor='top-right'>
+              <User size='30px' />
+              <Box
+                background='brand'
+                responsive={false}
+                align='center'
+                height='15px'
+                width='15px'
+                round
+              >
+                <Text color='white' size='11px' css='position: relative; top: 1px'>
+                  {ride.numFriends}
+                </Text>
+              </Box>
+            </Stack>
+          </Box>
+        }
       </CardFooter>
     </ImageCard>
   )

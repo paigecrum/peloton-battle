@@ -55,7 +55,7 @@ export default function Rides() {
       { state[selectedRideLength] && state[selectedRideLength].length > 0 &&
         <>
           <Box align='center'>
-            <Heading level='1' size='22px'>
+            <Heading level='1' size='22px' margin='small' textAlign='center'>
               Select a ride you've taken to battle a friend.
             </Heading>
           </Box>
@@ -96,7 +96,7 @@ function RideLengthNav({selected, onUpdateRideLength}) {
 
   return (
     <Box align='center' pad='medium'>
-      <Nav direction='row' align='center'>
+      <Nav direction='row' justify='center' wrap={true}>
         { rideLengths.map((rideLength) => (
           <Button
             key={rideLength}
