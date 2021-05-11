@@ -7,6 +7,7 @@ import { theme } from "./theme"
 import Nav from './components/Nav'
 import Loading from './components/Loading'
 import LoginForm from './components/LoginForm'
+import PageNotFound from './components/PageNotFound'
 import { AuthContext, AuthProvider } from './contexts/auth'
 import { ApiProvider } from './contexts/api'
 
@@ -26,7 +27,7 @@ const UnauthenticatedRoutes = () => {
       <Route path='/login'>
         <LoginForm />
       </Route>
-      <Route render={() => <h1>404</h1>} />
+      <Route render={() => <PageNotFound />} />
     </Switch>
   )
 }

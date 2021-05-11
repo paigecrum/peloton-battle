@@ -2,10 +2,12 @@ import React from 'react'
 import { useHistory } from 'react-router-dom'
 import { Avatar, Card, CardBody, Heading, Text } from 'grommet'
 
+import useHoverAnimation from '../hooks/useHoverAnimation'
 import { formatDate } from '../utils/helpers'
 
 export default function OpponentCard({ opponent, ride }) {
   const history = useHistory();
+  const [shouldAnimate, attrs] = useHoverAnimation();
 
   const handleClickCard = () => {
     history.push({
@@ -23,6 +25,8 @@ export default function OpponentCard({ opponent, ride }) {
       margin={{ horizontal:'medium' }}
       onClick={handleClickCard}
       alignContent='center'
+      animation={shouldAnimate ? {type: 'zoomIn', size: 'small', duration: 500} : undefined}
+      {...attrs}
     >
       <CardBody align='center' justify='center'>
         <Avatar

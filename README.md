@@ -6,7 +6,7 @@ This is a React/Express App that authenticates you to the Peloton API using your
 
 ![results-preview](./resultsPreview.png)
 
-## Development
+## 💻 Development
 
 To develop locally, please see the configuration section below.
 
@@ -28,7 +28,7 @@ Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
 
 The page will reload if you make edits.
 
-### Configuration
+### 🛠 Configuration
 
 You will need the following config file in place to run the app. There is a sample in `.env.example`.
 

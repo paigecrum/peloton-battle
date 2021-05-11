@@ -1,34 +1,16 @@
-import React, { useLayoutEffect, useRef, useState } from 'react'
+import React from 'react'
 import { useHistory } from 'react-router-dom'
 import styled from 'styled-components'
 import { Box, Card, CardBody, CardFooter, Stack, Text } from 'grommet'
 import { Calendar, User } from 'grommet-icons'
 import 'styled-components/macro'
 
+import useHoverAnimation from '../hooks/useHoverAnimation'
 import { instructorMap, formatDate } from '../utils/helpers'
 
 export default function RideCard({ ride }) {
-  const [hovering, setHovering] = useState(false);
-  const [shouldAnimate, setShouldAnimate] = useState(false);
-  const timeoutRef = useRef(0);
+  const [shouldAnimate, attrs] = useHoverAnimation();
   const history = useHistory();
-
-  useLayoutEffect(() => {
-    timeoutRef.current = setTimeout(() => {
-      clearTimeout(timeoutRef.current);
-
-      if (hovering) {
-        setShouldAnimate(true);
-      } else {
-        setShouldAnimate(false);
-      }
-    }, 10);
-
-    return () => {
-      clearTimeout(timeoutRef);
-    }
-
-  }, [shouldAnimate, hovering]);
 
   const handleClickCard = () => {
     history.push(`/battle/${ride.id}`, { ride });
@@ -41,8 +23,7 @@ export default function RideCard({ ride }) {
       src={ride.imageUrl}
       animation={shouldAnimate ? {type: 'zoomIn', size: 'small', duration: 500} : undefined}
       onClick={handleClickCard}
-      onMouseEnter={() => setHovering(true)}
-      onMouseLeave={() => setHovering(false)}
+      {...attrs}
     >
       <CardBody />
       <CardFooter
