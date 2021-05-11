@@ -6,11 +6,18 @@ import { formatDate } from '../utils/helpers'
 
 export default function ResultCard({ player, outcome }) {
   return (
-    <Card height='250px' width='250px' margin='large' align='center' background='light-1' overflow='visible'>
-      <CardHeader  margin='-50px'>
+    <Card
+      width='250px'
+      height='250px'
+      margin={{ horizontal: 'large', top: 'large', bottom: 'xlarge' }}
+      align='center'
+      background='light-1'
+      overflow='visible'
+    >
+      <CardHeader margin='-50px'>
         <Avatar src={player.avatarUrl} size='100px'/>
       </CardHeader>
-      <CardBody align='center' justify='center' width='220px' pad={{ top: 'large' }}>
+      <CardBody pad={{ top: 'large' }} align='center' justify='center'>
         <Heading level='3' size='22px' margin='none'>
           {player.username}
         </Heading>
