@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useReducer } from 'react'
 import { useLocation, useParams } from 'react-router-dom'
-import { Box, Heading } from 'grommet'
+import { Box, Heading, Text } from 'grommet'
+import { CircleInformation } from 'grommet-icons'
 import queryString from 'query-string'
 
 import { ApiContext } from '../contexts/api'
@@ -102,15 +103,20 @@ export default function Results() {
           <Box align='center'>
             <Loading text='Battling' />
           </Box>
-        : <Box pad={{ top: '48px' }} justify='center' direction='row' wrap={true}>
-            <ResultCard
-              player={playersState.winner}
-              outcome={playersState.winner.totalOutput === playersState.loser.totalOutput ? 'TIE' : 'WINNER'}
-            />
-            <ResultCard
-              player={playersState.loser}
-              outcome={playersState.winner.totalOutput === playersState.loser.totalOutput ? 'TIE' : 'LOSER'}
-            />
+        : <Box>
+            {(playersState.winner.deviceType === 'web' || playersState.loser.deviceType === 'web') &&
+              <OffBrandBikeWarning />
+            }
+            <Box pad={{ top: '48px' }} justify='center' direction='row' wrap={true}>
+              <ResultCard
+                player={playersState.winner}
+                outcome={playersState.winner.totalOutput === playersState.loser.totalOutput ? 'TIE' : 'WINNER'}
+              />
+              <ResultCard
+                player={playersState.loser}
+                outcome={playersState.winner.totalOutput === playersState.loser.totalOutput ? 'TIE' : 'LOSER'}
+              />
+            </Box>
           </Box>
       }
     </Box>
@@ -134,4 +140,28 @@ const playersReducer = (state, action) => {
   } else {
     throw new Error(`This action type isn't supported.`)
   }
+}
+
+function OffBrandBikeWarning() {
+  return (
+    <Box
+      direction='row'
+      gap='small'
+      justify='center'
+      align='center'
+      round='medium'
+      elevation='medium'
+      width='500px'
+      margin={{ horizontal: 'auto', top: 'medium' }}
+      pad={{ vertical: 'xsmall', horizontal: 'small'}}
+      background='#fcf388'
+    >
+      <Box margin={{ left: 'small' }}>
+        <CircleInformation color='plain'/>
+      </Box>
+      <Text textAlign='center'>
+        Both opponents must use a Peloton bike to battle.
+      </Text>
+    </Box>
+  )
 }

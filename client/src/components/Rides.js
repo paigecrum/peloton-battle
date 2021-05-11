@@ -122,6 +122,7 @@ function RidesGrid({ rides }) {
         rows='small'
         columns={{ count: 'fit', size: 'medium' }}
         justify='center'
+        margin={{ bottom: 'large' }}
       >
         { rides.map((ride) => (
           <RideCard key={ride.id} ride={ride} />
