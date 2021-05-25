@@ -69,6 +69,7 @@ export default function RideCard({ ride }) {
 }
 
 const ImageCard = styled(Card)`
+  background-color: black;
   background-image: url("${(props) => props.src}");
   background-size: cover;
 `;

@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useReducer } from 'react'
 import { useLocation, useParams } from 'react-router-dom'
 import { Box, Heading, Text } from 'grommet'
 import { CircleInformation } from 'grommet-icons'
+import { AttentionSeeker } from 'react-awesome-reveal';
 import queryString from 'query-string'
 
 import { ApiContext } from '../contexts/api'
@@ -105,7 +106,9 @@ export default function Results() {
           </Box>
         : <Box>
             {(playersState.winner.deviceType === 'web' || playersState.loser.deviceType === 'web') &&
-              <OffBrandBikeWarning />
+              <AttentionSeeker effect='headShake'>
+                <OffBrandBikeWarning />
+              </AttentionSeeker>
             }
             <Box pad={{ top: '48px' }} justify='center' direction='row' wrap={true}>
               <ResultCard

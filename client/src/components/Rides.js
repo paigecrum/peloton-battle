@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useReducer, useRef, useState } from 'react'
 import PropTypes from 'prop-types'
 import { Box, Button, Grid, Heading, Nav, Text } from 'grommet'
+import { Fade } from 'react-awesome-reveal';
 
 import { ErrorMessage } from './ErrorMessage'
 import Loading from './Loading'
@@ -125,7 +126,9 @@ function RidesGrid({ rides }) {
         margin={{ bottom: 'large' }}
       >
         { rides.map((ride) => (
-          <RideCard key={ride.id} ride={ride} />
+          <Fade key={ride.id} triggerOnce>
+            <RideCard ride={ride} />
+          </Fade>
         ))}
       </Grid>
     </Box>
